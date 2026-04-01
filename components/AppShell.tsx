@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { usePathname } from 'next/navigation'
 import Ticker from './Ticker'
 import Sidebar from './Sidebar'
+import { AdminContext } from '@/lib/admin-context'
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const [open, setOpen]       = useState(false)
@@ -23,7 +24,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   if (pathname === '/login') return <>{children}</>
 
   return (
-    <>
+    <AdminContext.Provider value={isAdmin}>
       <Ticker
         onMenuClick={() => setOpen(true)}
         isAdmin={isAdmin}
@@ -63,6 +64,6 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           {children}
         </main>
       </div>
-    </>
+    </AdminContext.Provider>
   )
 }

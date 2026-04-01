@@ -91,3 +91,21 @@ export function getMaintenanceRequests(): MaintenanceRequestRow[] {
 export function getNetworkDevices(): NetworkDeviceRow[] {
   return getDb().prepare('SELECT * FROM network_devices ORDER BY hostname').all() as NetworkDeviceRow[]
 }
+
+/* ─── Status updates ─── */
+
+export function updateIPRequestStatus(id: number, status: string) {
+  return getDb().prepare('UPDATE ip_requests SET status = ? WHERE id = ?').run(status, id)
+}
+
+export function updateEquipmentRequestStatus(id: number, status: string) {
+  return getDb().prepare('UPDATE equipment_requests SET status = ? WHERE id = ?').run(status, id)
+}
+
+export function updatePrinterRequestStatus(id: number, status: string) {
+  return getDb().prepare('UPDATE printer_requests SET status = ? WHERE id = ?').run(status, id)
+}
+
+export function updateMaintenanceRequestStatus(id: number, status: string) {
+  return getDb().prepare('UPDATE maintenance_requests SET status = ? WHERE id = ?').run(status, id)
+}

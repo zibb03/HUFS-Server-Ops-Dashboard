@@ -4,19 +4,15 @@ import { useState, useEffect } from 'react'
 import ServerStatus from './ServerStatus'
 import SecurityStatus from './SecurityStatus'
 import ServerLoad from './ServerLoad'
+import ServerMonitor from './ServerMonitor'
 import QuickActions from './QuickActions'
 import IncidentList from './IncidentList'
 import NoticeList from './NoticeList'
-import IPModal from './modals/IPModal'
-import EquipmentModal from './modals/EquipmentModal'
-import PrinterModal from './modals/PrinterModal'
-import MaintenanceModal from './modals/MaintenanceModal'
+import { useAdmin } from '@/lib/admin-context'
 import type { DashboardData } from '@/lib/types'
 
-export type ModalId = 'ip' | 'equipment' | 'printer' | 'maintenance' | null
-
 export default function Dashboard() {
-  const [activeModal, setActiveModal] = useState<ModalId>(null)
+  const isAdmin = useAdmin()
   const [currentTime, setCurrentTime] = useState('')
   const [dashData, setDashData] = useState<DashboardData | null>(null)
 
@@ -48,14 +44,27 @@ export default function Dashboard() {
         <div className="text-xs text-secondary mt-1">마지막 업데이트: {currentTime}</div>
       </div>
 
-      <ServerStatus data={dashData?.serverStatus} />
+      {isAdmin ? (
+        /* ── 관리자 레이아웃 ── */
+        <>
+          <div className="mb-5">
+            <ServerStatus data={dashData?.serverStatus} />
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-5">
+            <SecurityStatus data={dashData?.securityStatus} />
+            <ServerLoad data={dashData?.serverLoad} />
+          </div>
+          <ServerMonitor />
+        </>
+      ) : (
+        /* ── 일반 사용자 레이아웃 ── */
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
+          <ServerStatus data={dashData?.serverStatus} />
+          <SecurityStatus data={dashData?.securityStatus} />
+        </div>
+      )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-5">
-        <SecurityStatus data={dashData?.securityStatus} />
-        <ServerLoad     data={dashData?.serverLoad} />
-      </div>
-
-      <QuickActions onOpen={setActiveModal} />
+      <QuickActions />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <IncidentList data={dashData?.incidents} />
@@ -67,11 +76,6 @@ export default function Dashboard() {
         <span>2024 한국외국어대학교 서버종합상황실</span>
         <span>HUFS Server Ops · 개인정보보호방침 · 이용약관</span>
       </div>
-
-      <IPModal          open={activeModal === 'ip'}          onClose={() => setActiveModal(null)} />
-      <EquipmentModal   open={activeModal === 'equipment'}   onClose={() => setActiveModal(null)} />
-      <PrinterModal     open={activeModal === 'printer'}     onClose={() => setActiveModal(null)} />
-      <MaintenanceModal open={activeModal === 'maintenance'} onClose={() => setActiveModal(null)} />
     </>
   )
 }

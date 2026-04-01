@@ -17,6 +17,7 @@ function createDb(): Database.Database {
   db.pragma('journal_mode = WAL')
   db.pragma('foreign_keys = ON')
   initSchema(db)
+  migrateSchema(db)
   seedIfEmpty(db)
   return db
 }
@@ -116,6 +117,18 @@ function initSchema(db: Database.Database) {
       last_seen   TEXT NOT NULL DEFAULT (datetime('now','localtime'))
     );
   `)
+}
+
+/* ─────────────────────── Migrations ─────────────────────── */
+function migrateSchema(db: Database.Database) {
+  const tables = ['ip_requests', 'equipment_requests', 'printer_requests', 'maintenance_requests']
+  for (const table of tables) {
+    try {
+      db.exec(`ALTER TABLE ${table} ADD COLUMN status TEXT NOT NULL DEFAULT 'pending'`)
+    } catch {
+      // 컬럼이 이미 존재하면 무시
+    }
+  }
 }
 
 /* ─────────────────────── Seed data ─────────────────────── */

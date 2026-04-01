@@ -1,37 +1,33 @@
-import type { ModalId } from './Dashboard'
-
-interface Props {
-  onOpen: (id: ModalId) => void
-}
+import Link from 'next/link'
 
 const ACTIONS = [
   {
-    id: 'ip'          as ModalId,
+    href:  '/requests/ip',
     label: 'IP 요청',
     desc:  '공인 IP 주소 신청',
     icon:  <LayersIcon />,
   },
   {
-    id: 'equipment'   as ModalId,
+    href:  '/requests/equipment',
     label: '장비 대여',
     desc:  '학과 보유 기자재 대여',
     icon:  <MonitorIcon />,
   },
   {
-    id: 'printer'     as ModalId,
+    href:  '/requests/printer',
     label: '프린터 요청',
     desc:  '프린터 사용 신청',
     icon:  <PrinterIcon />,
   },
   {
-    id: 'maintenance' as ModalId,
+    href:  '/requests/maintenance',
     label: '유지보수 신청',
     desc:  '기자재 수리 요청',
     icon:  <WrenchIcon />,
   },
 ]
 
-export default function QuickActions({ onOpen }: Props) {
+export default function QuickActions() {
   return (
     <section className="mb-5">
       <div className="flex items-center gap-2 mb-3">
@@ -39,11 +35,11 @@ export default function QuickActions({ onOpen }: Props) {
         <span className="text-xs text-secondary uppercase tracking-widest">/ Quick Actions</span>
       </div>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        {ACTIONS.map(({ id, label, desc, icon }) => (
-          <button
-            key={id}
-            onClick={() => onOpen(id)}
-            className="bg-surface-lowest rounded-md p-4 flex flex-col items-center gap-2.5 transition-all duration-200 hover:-translate-y-px text-left"
+        {ACTIONS.map(({ href, label, desc, icon }) => (
+          <Link
+            key={href}
+            href={href}
+            className="bg-surface-lowest rounded-md p-4 flex flex-col items-center gap-2.5 transition-all duration-200 hover:-translate-y-px"
             style={{ boxShadow: '0 2px 8px rgba(0,32,91,0.04)' }}
           >
             <div
@@ -54,7 +50,7 @@ export default function QuickActions({ onOpen }: Props) {
             </div>
             <span className="text-sm font-display font-bold text-on-surface">{label}</span>
             <span className="text-xs text-secondary text-center">{desc}</span>
-          </button>
+          </Link>
         ))}
       </div>
     </section>

@@ -48,24 +48,30 @@ export interface DashboardData {
   notices: NoticeRow[]
 }
 
+export type RequestStatus = 'pending' | 'approved' | 'rejected' | 'processing' | 'completed'
+
 /* ── Request rows (DB) ── */
 export interface IPRequestRow extends IPRequestPayload {
   id: number
+  status: RequestStatus
   created_at: string
 }
 
 export interface EquipmentRequestRow extends EquipmentRequestPayload {
   id: number
+  status: RequestStatus
   created_at: string
 }
 
 export interface PrinterRequestRow extends PrinterRequestPayload {
   id: number
+  status: RequestStatus
   created_at: string
 }
 
 export interface MaintenanceRequestRow extends MaintenanceRequestPayload {
   id: number
+  status: RequestStatus
   created_at: string
 }
 
