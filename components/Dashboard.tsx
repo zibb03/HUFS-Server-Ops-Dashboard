@@ -58,10 +58,15 @@ export default function Dashboard() {
         </>
       ) : (
         /* ── 일반 사용자 레이아웃 ── */
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5 mb-5">
-          <ServerStatus data={dashData?.serverStatus} />
-          <SecurityStatus data={dashData?.securityStatus} />
-        </div>
+        <>
+          <div className="mb-5">
+            <ServerStatus data={dashData?.serverStatus} />
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-5">
+            <SecurityStatus data={dashData?.securityStatus} />
+            <ServerLoad data={dashData?.serverLoad} />
+          </div>
+        </>
       )}
 
       <QuickActions />

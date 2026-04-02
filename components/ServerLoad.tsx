@@ -15,39 +15,36 @@ export default function ServerLoad({ data = DEFAULTS }: Props) {
   ]
 
   return (
-    <div
-      className="bg-surface-lowest rounded-md p-5 transition-all duration-200 hover:-translate-y-px"
-      style={{ boxShadow: '0 2px 8px rgba(0,32,91,0.04)' }}
-    >
-      <div className="flex items-center justify-between mb-4">
-        <div>
-          <div className="text-xs font-display font-semibold uppercase tracking-widest text-secondary mb-0.5">
-            Infrastructure
-          </div>
-          <h2 className="font-display font-bold text-base text-on-surface">서버 부하 현황</h2>
-        </div>
-        <span className="text-xs text-secondary">실시간</span>
+    <section className="h-full flex flex-col">
+      <div className="flex items-center gap-2 mb-3">
+        <h2 className="font-display font-bold text-base text-on-surface">서버 부하 현황</h2>
+        <span className="text-xs text-secondary uppercase tracking-widest">/ Infrastructure</span>
       </div>
 
-      <div className="space-y-4">
-        {servers.map(({ label, value, color }) => (
-          <div key={label}>
-            <div className="flex justify-between items-center mb-1.5">
-              <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: color }} />
-                <span className="text-sm text-on-surface">{label}</span>
+      <div
+        className="flex-1 bg-surface-lowest rounded-md p-5 flex flex-col justify-center transition-all duration-200 hover:-translate-y-px"
+        style={{ boxShadow: '0 2px 8px rgba(0,32,91,0.04)' }}
+      >
+        <div className="space-y-4">
+          {servers.map(({ label, value, color }) => (
+            <div key={label}>
+              <div className="flex justify-between items-center mb-1.5">
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: color }} />
+                  <span className="text-sm text-on-surface">{label}</span>
+                </div>
+                <span className="text-sm font-display font-bold text-on-surface">{value}%</span>
               </div>
-              <span className="text-sm font-display font-bold text-on-surface">{value}%</span>
+              <div className="w-full bg-surface-high rounded-full h-2">
+                <div
+                  className="h-2 rounded-full"
+                  style={{ width: `${value}%`, background: color, transition: 'width 1.2s ease-in-out' }}
+                />
+              </div>
             </div>
-            <div className="w-full bg-surface-high rounded-full h-2">
-              <div
-                className="h-2 rounded-full"
-                style={{ width: `${value}%`, background: color, transition: 'width 1.2s ease-in-out' }}
-              />
-            </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
-    </div>
+    </section>
   )
 }

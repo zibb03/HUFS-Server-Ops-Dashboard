@@ -14,9 +14,12 @@ export default function SecurityStatus({ data = DEFAULTS }: Props) {
   const natThreatLow   = data.national_threat_level < 40
 
   return (
-    <section>
-      <SectionHeader title="보안 위협 현황" sub="Security Status" />
-      <div className="grid grid-cols-2 gap-4">
+    <section className="h-full flex flex-col">
+      <div className="flex items-center gap-2 mb-3">
+        <h2 className="font-display font-bold text-base text-on-surface">보안 위협 현황</h2>
+        <span className="text-xs text-secondary uppercase tracking-widest">/ Security Status</span>
+      </div>
+      <div className="flex-1 grid grid-cols-2 gap-4">
 
         <GaugeCard
           title="보안 위협 상태"
@@ -44,15 +47,6 @@ export default function SecurityStatus({ data = DEFAULTS }: Props) {
 
       </div>
     </section>
-  )
-}
-
-function SectionHeader({ title, sub }: { title: string; sub: string }) {
-  return (
-    <div className="flex items-center gap-2 mb-3">
-      <h2 className="font-display font-bold text-base text-on-surface">{title}</h2>
-      <span className="text-xs text-secondary uppercase tracking-widest">/ {sub}</span>
-    </div>
   )
 }
 

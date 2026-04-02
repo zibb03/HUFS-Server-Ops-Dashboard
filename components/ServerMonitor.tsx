@@ -41,12 +41,12 @@ export default function ServerMonitor() {
 
       <div className="bg-surface-lowest rounded-md overflow-hidden" style={{ boxShadow: '0 2px 8px rgba(0,32,91,0.04)' }}>
         {/* Header */}
-        <div className="hidden md:grid grid-cols-[2fr_1.2fr_1fr_1fr_auto] gap-4 px-4 py-2.5 text-xs font-display font-semibold uppercase tracking-widest text-secondary bg-surface-low">
+        <div className="hidden md:grid grid-cols-[2fr_1.2fr_1fr_1fr_6rem] gap-4 px-4 py-2.5 text-xs font-display font-semibold uppercase tracking-widest text-secondary bg-surface-low">
           <span>서버</span>
-          <span>IP</span>
-          <span>CPU</span>
-          <span>MEM</span>
-          <span>상태</span>
+          <span className="text-center">IP</span>
+          <span className="text-center">CPU</span>
+          <span className="text-center">MEM</span>
+          <span className="text-center">상태</span>
         </div>
 
         {GROUPS.map((group, gi) => {
@@ -54,7 +54,7 @@ export default function ServerMonitor() {
           return (
             <div key={group}>
               <div className="px-4 py-1.5 text-xs font-display font-semibold text-secondary/60 uppercase tracking-widest"
-                style={{ background: gi % 2 === 0 ? 'rgba(0,13,47,0.02)' : 'transparent' }}>
+                style={{ background: 'rgba(0,13,47,0.02)' }}>
                 {group}
               </div>
               {nodes.map((srv, i) => {
@@ -63,11 +63,11 @@ export default function ServerMonitor() {
                 return (
                   <div
                     key={srv.id}
-                    className="grid grid-cols-2 md:grid-cols-[2fr_1.2fr_1fr_1fr_auto] gap-x-4 gap-y-1 items-center px-4 py-3"
+                    className="grid grid-cols-2 md:grid-cols-[2fr_1.2fr_1fr_1fr_6rem] gap-x-4 gap-y-1 items-center px-4 py-3"
                     style={{ borderTop: '1px solid rgba(0,13,47,0.05)' }}
                   >
                     {/* 서버명 */}
-                    <div className="flex items-center gap-2 col-span-2 md:col-span-1">
+                    <div className="flex items-center gap-2 col-span-2 md:col-span-1 md:col-start-1">
                       <span className={`w-2 h-2 rounded-full flex-shrink-0 ${meta.dot}`} />
                       <span className="text-sm font-display font-semibold text-on-surface">{srv.label}</span>
                       {srv.count && (
@@ -76,60 +76,58 @@ export default function ServerMonitor() {
                     </div>
 
                     {/* IP */}
-                    <div className="text-xs text-secondary font-mono hidden md:block">{srv.ip}</div>
+                    <div className="text-xs text-secondary font-mono hidden md:block md:col-start-2 text-center">{srv.ip}</div>
 
                     {/* CPU */}
-                    <div className="hidden md:block">
-                      {srv.status !== 'offline' ? (
-                        <div className="flex items-center gap-2">
-                          <div className="flex-1 bg-surface-high rounded-full h-1.5">
-                            <div
-                              className="h-1.5 rounded-full"
-                              style={{
-                                width: `${srv.cpu}%`,
-                                background: srv.cpu >= 85 ? '#d97706' : '#000d2f',
-                                transition: 'width 1.2s ease-in-out',
-                              }}
-                            />
-                          </div>
-                          <span className="text-xs font-display font-bold text-on-surface w-8 text-right">{srv.cpu}%</span>
+                    <div className="hidden md:block md:col-start-3">
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1 bg-surface-high rounded-full h-1.5">
+                          <div
+                            className="h-1.5 rounded-full"
+                            style={{
+                              width: srv.status !== 'offline' ? `${srv.cpu}%` : '0%',
+                              background: srv.cpu >= 85 ? '#d97706' : '#000d2f',
+                              transition: 'width 1.2s ease-in-out',
+                            }}
+                          />
                         </div>
-                      ) : <span className="text-xs text-secondary">—</span>}
+                        <span className="text-xs font-display font-bold text-on-surface w-8 text-center">
+                          {srv.status !== 'offline' ? `${srv.cpu}%` : '—'}
+                        </span>
+                      </div>
                     </div>
 
                     {/* MEM */}
-                    <div className="hidden md:block">
-                      {srv.status !== 'offline' ? (
-                        <div className="flex items-center gap-2">
-                          <div className="flex-1 bg-surface-high rounded-full h-1.5">
-                            <div
-                              className="h-1.5 rounded-full"
-                              style={{
-                                width: `${srv.mem}%`,
-                                background: srv.mem >= 85 ? '#d97706' : '#00205b',
-                                transition: 'width 1.2s ease-in-out',
-                              }}
-                            />
-                          </div>
-                          <span className="text-xs font-display font-bold text-on-surface w-8 text-right">{srv.mem}%</span>
+                    <div className="hidden md:block md:col-start-4">
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1 bg-surface-high rounded-full h-1.5">
+                          <div
+                            className="h-1.5 rounded-full"
+                            style={{
+                              width: srv.status !== 'offline' ? `${srv.mem}%` : '0%',
+                              background: srv.mem >= 85 ? '#d97706' : '#00205b',
+                              transition: 'width 1.2s ease-in-out',
+                            }}
+                          />
                         </div>
-                      ) : <span className="text-xs text-secondary">—</span>}
+                        <span className="text-xs font-display font-bold text-on-surface w-8 text-center">
+                          {srv.status !== 'offline' ? `${srv.mem}%` : '—'}
+                        </span>
+                      </div>
                     </div>
 
                     {/* 상태 배지 */}
-                    <div className="flex items-center justify-end md:justify-start col-span-1 md:col-span-1">
+                    <div className="flex items-center justify-end md:justify-center col-span-1 md:col-start-5 md:col-span-1">
                       <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${meta.badge}`}>
                         {meta.label}
                       </span>
                     </div>
 
                     {/* 모바일: CPU/MEM 간략 표시 */}
-                    {srv.status !== 'offline' && (
-                      <div className="col-span-2 flex gap-3 md:hidden">
-                        <span className="text-xs text-secondary">CPU <b className="text-on-surface">{srv.cpu}%</b></span>
-                        <span className="text-xs text-secondary">MEM <b className="text-on-surface">{srv.mem}%</b></span>
-                      </div>
-                    )}
+                    <div className="col-span-2 flex gap-3 md:hidden">
+                      <span className="text-xs text-secondary">CPU <b className="text-on-surface">{srv.status !== 'offline' ? `${srv.cpu}%` : '—'}</b></span>
+                      <span className="text-xs text-secondary">MEM <b className="text-on-surface">{srv.status !== 'offline' ? `${srv.mem}%` : '—'}</b></span>
+                    </div>
                   </div>
                 )
               })}
