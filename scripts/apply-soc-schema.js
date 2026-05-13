@@ -1,6 +1,5 @@
 /* eslint-disable */
-// TODO_APP_DATABASE_URL 과 동일한 DB 에 soc_* 스키마(supabase/schema.sql) 적용.
-// (사용자가 한 Supabase DB 를 두 앱에 공유하기로 결정)
+// Supabase Postgres 에 soc_* 스키마(supabase/schema.sql) 적용.
 const fs = require('fs')
 const path = require('path')
 const { Client } = require('pg')
@@ -17,7 +16,7 @@ function loadEnv(file) {
 }
 loadEnv(path.join(__dirname, '..', '.env.local'))
 
-const url = process.env.SOC_DATABASE_URL || process.env.TODO_APP_DATABASE_URL
+const url = process.env.SUPABASE_DATABASE_URL
 if (!url) { console.error('DATABASE_URL 미설정'); process.exit(1) }
 
 const sql = fs.readFileSync(path.join(__dirname, '..', 'supabase', 'schema.sql'), 'utf8')
