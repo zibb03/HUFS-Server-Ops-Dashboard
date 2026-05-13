@@ -11,8 +11,8 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
       return NextResponse.json({ success: false, error: '유효하지 않은 상태값' }, { status: 400 })
     }
     const id = Number(params.id)
-    const result = updateIPRequestStatus(id, status)
-    if (result.changes === 0) return NextResponse.json({ success: false, error: '해당 항목 없음' }, { status: 404 })
+    const changes = await updateIPRequestStatus(id, status)
+    if (changes === 0) return NextResponse.json({ success: false, error: '해당 항목 없음' }, { status: 404 })
     return NextResponse.json({ success: true })
   } catch (err) {
     console.error('[/api/requests/ip/[id]] PATCH error:', err)

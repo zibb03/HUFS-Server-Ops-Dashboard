@@ -1,4 +1,4 @@
-import { getDb } from './db'
+import { sbSelect, sbSelectOne, sbInsert, sbUpdate } from './supabase'
 import type {
   ServerStatusRow, SecurityStatusRow, ServerLoadRow,
   IncidentRow, NoticeRow, DashboardData,
@@ -8,104 +8,126 @@ import type {
   NetworkDeviceRow,
 } from './types'
 
+// 한 Supabase DB 를 여러 앱이 공유하므로 본 앱의 모든 테이블은 soc_ 접두사를 사용한다.
+const T = {
+  serverStatus:        'soc_server_status',
+  securityStatus:      'soc_security_status',
+  serverLoad:          'soc_server_load',
+  incidents:           'soc_incidents',
+  notices:             'soc_notices',
+  ipRequests:          'soc_ip_requests',
+  equipmentRequests:   'soc_equipment_requests',
+  printerRequests:     'soc_printer_requests',
+  maintenanceRequests: 'soc_maintenance_requests',
+  networkDevices:      'soc_network_devices',
+} as const
+
 /* ─── GET ─── */
 
-export function getServerStatus(): ServerStatusRow {
-  return getDb().prepare('SELECT * FROM server_status WHERE id = 1').get() as ServerStatusRow
+export async function getServerStatus(): Promise<ServerStatusRow> {
+  const row = await sbSelectOne<ServerStatusRow>(T.serverStatus, { filters: { id: 'eq.1' } })
+  if (!row) throw new Error(`${T.serverStatus} 행이 없습니다`)
+  return row
 }
 
-export function getSecurityStatus(): SecurityStatusRow {
-  return getDb().prepare('SELECT * FROM security_status WHERE id = 1').get() as SecurityStatusRow
+export async function getSecurityStatus(): Promise<SecurityStatusRow> {
+  const row = await sbSelectOne<SecurityStatusRow>(T.securityStatus, { filters: { id: 'eq.1' } })
+  if (!row) throw new Error(`${T.securityStatus} 행이 없습니다`)
+  return row
 }
 
-export function getServerLoad(): ServerLoadRow {
-  return getDb().prepare('SELECT * FROM server_load WHERE id = 1').get() as ServerLoadRow
+export async function getServerLoad(): Promise<ServerLoadRow> {
+  const row = await sbSelectOne<ServerLoadRow>(T.serverLoad, { filters: { id: 'eq.1' } })
+  if (!row) throw new Error(`${T.serverLoad} 행이 없습니다`)
+  return row
 }
 
-export function getIncidents(limit = 10): IncidentRow[] {
-  return getDb()
-    .prepare('SELECT * FROM incidents ORDER BY created_at DESC LIMIT ?')
-    .all(limit) as IncidentRow[]
+export async function getIncidents(limit = 10): Promise<IncidentRow[]> {
+  return sbSelect<IncidentRow>(T.incidents, { order: 'created_at.desc', limit })
 }
 
-export function getNotices(limit = 10): NoticeRow[] {
-  return getDb()
-    .prepare('SELECT * FROM notices ORDER BY created_at DESC LIMIT ?')
-    .all(limit) as NoticeRow[]
+export async function getNotices(limit = 10): Promise<NoticeRow[]> {
+  return sbSelect<NoticeRow>(T.notices, { order: 'created_at.desc', limit })
 }
 
-export function getDashboardData(): DashboardData {
-  return {
-    serverStatus:   getServerStatus(),
-    securityStatus: getSecurityStatus(),
-    serverLoad:     getServerLoad(),
-    incidents:      getIncidents(4),
-    notices:        getNotices(4),
-  }
+export async function getDashboardData(): Promise<DashboardData> {
+  const [serverStatus, securityStatus, serverLoad, incidents, notices] = await Promise.all([
+    getServerStatus(),
+    getSecurityStatus(),
+    getServerLoad(),
+    getIncidents(4),
+    getNotices(4),
+  ])
+  return { serverStatus, securityStatus, serverLoad, incidents, notices }
 }
 
 /* ─── INSERT ─── */
 
-export function insertIPRequest(payload: IPRequestPayload) {
-  return getDb()
-    .prepare('INSERT INTO ip_requests (applicant_name, department, student_id, purpose) VALUES (?, ?, ?, ?)')
-    .run(payload.applicant_name, payload.department, payload.student_id, payload.purpose)
+export async function insertIncident(title: string, status = 'processing'): Promise<IncidentRow> {
+  return sbInsert<IncidentRow>(T.incidents, { title, status })
 }
 
-export function insertEquipmentRequest(payload: EquipmentRequestPayload) {
-  return getDb()
-    .prepare('INSERT INTO equipment_requests (applicant_name, equipment_type, rental_start, rental_end) VALUES (?, ?, ?, ?)')
-    .run(payload.applicant_name, payload.equipment_type, payload.rental_start, payload.rental_end)
+export async function insertNotice(title: string, type = 'general'): Promise<NoticeRow> {
+  return sbInsert<NoticeRow>(T.notices, { title, type })
 }
 
-export function insertPrinterRequest(payload: PrinterRequestPayload) {
-  return getDb()
-    .prepare('INSERT INTO printer_requests (applicant_name, printer_id, copies) VALUES (?, ?, ?)')
-    .run(payload.applicant_name, payload.printer_id, payload.copies)
+export async function insertIPRequest(payload: IPRequestPayload): Promise<IPRequestRow> {
+  return sbInsert<IPRequestRow>(T.ipRequests, payload)
 }
 
-export function insertMaintenanceRequest(payload: MaintenanceRequestPayload) {
-  return getDb()
-    .prepare('INSERT INTO maintenance_requests (applicant_name, equipment_desc, issue_detail, urgency) VALUES (?, ?, ?, ?)')
-    .run(payload.applicant_name, payload.equipment_desc, payload.issue_detail, payload.urgency)
+export async function insertEquipmentRequest(payload: EquipmentRequestPayload): Promise<EquipmentRequestRow> {
+  return sbInsert<EquipmentRequestRow>(T.equipmentRequests, payload)
+}
+
+export async function insertPrinterRequest(payload: PrinterRequestPayload): Promise<PrinterRequestRow> {
+  return sbInsert<PrinterRequestRow>(T.printerRequests, payload)
+}
+
+export async function insertMaintenanceRequest(payload: MaintenanceRequestPayload): Promise<MaintenanceRequestRow> {
+  return sbInsert<MaintenanceRequestRow>(T.maintenanceRequests, payload)
 }
 
 /* ─── List queries ─── */
 
-export function getIPRequests(): IPRequestRow[] {
-  return getDb().prepare('SELECT * FROM ip_requests ORDER BY created_at DESC').all() as IPRequestRow[]
+export async function getIPRequests(): Promise<IPRequestRow[]> {
+  return sbSelect<IPRequestRow>(T.ipRequests, { order: 'created_at.desc' })
 }
 
-export function getEquipmentRequests(): EquipmentRequestRow[] {
-  return getDb().prepare('SELECT * FROM equipment_requests ORDER BY created_at DESC').all() as EquipmentRequestRow[]
+export async function getEquipmentRequests(): Promise<EquipmentRequestRow[]> {
+  return sbSelect<EquipmentRequestRow>(T.equipmentRequests, { order: 'created_at.desc' })
 }
 
-export function getPrinterRequests(): PrinterRequestRow[] {
-  return getDb().prepare('SELECT * FROM printer_requests ORDER BY created_at DESC').all() as PrinterRequestRow[]
+export async function getPrinterRequests(): Promise<PrinterRequestRow[]> {
+  return sbSelect<PrinterRequestRow>(T.printerRequests, { order: 'created_at.desc' })
 }
 
-export function getMaintenanceRequests(): MaintenanceRequestRow[] {
-  return getDb().prepare('SELECT * FROM maintenance_requests ORDER BY created_at DESC').all() as MaintenanceRequestRow[]
+export async function getMaintenanceRequests(): Promise<MaintenanceRequestRow[]> {
+  return sbSelect<MaintenanceRequestRow>(T.maintenanceRequests, { order: 'created_at.desc' })
 }
 
-export function getNetworkDevices(): NetworkDeviceRow[] {
-  return getDb().prepare('SELECT * FROM network_devices ORDER BY hostname').all() as NetworkDeviceRow[]
+export async function getNetworkDevices(): Promise<NetworkDeviceRow[]> {
+  return sbSelect<NetworkDeviceRow>(T.networkDevices, { order: 'hostname.asc' })
 }
 
 /* ─── Status updates ─── */
 
+async function updateStatus(table: string, id: number, status: string): Promise<number> {
+  const rows = await sbUpdate<{ id: number }>(table, { id: `eq.${id}` }, { status })
+  return rows.length
+}
+
 export function updateIPRequestStatus(id: number, status: string) {
-  return getDb().prepare('UPDATE ip_requests SET status = ? WHERE id = ?').run(status, id)
+  return updateStatus(T.ipRequests, id, status)
 }
 
 export function updateEquipmentRequestStatus(id: number, status: string) {
-  return getDb().prepare('UPDATE equipment_requests SET status = ? WHERE id = ?').run(status, id)
+  return updateStatus(T.equipmentRequests, id, status)
 }
 
 export function updatePrinterRequestStatus(id: number, status: string) {
-  return getDb().prepare('UPDATE printer_requests SET status = ? WHERE id = ?').run(status, id)
+  return updateStatus(T.printerRequests, id, status)
 }
 
 export function updateMaintenanceRequestStatus(id: number, status: string) {
-  return getDb().prepare('UPDATE maintenance_requests SET status = ? WHERE id = ?').run(status, id)
+  return updateStatus(T.maintenanceRequests, id, status)
 }
