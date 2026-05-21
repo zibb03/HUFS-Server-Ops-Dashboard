@@ -2,11 +2,13 @@
 
 import { useState } from 'react'
 import Modal, { FormField, Input, Select, Textarea, ModalActions } from '../Modal'
+import { useCurrentUser } from '@/lib/session-client'
 
 interface Props { open: boolean; onClose: () => void }
 
 export default function MaintenanceModal({ open, onClose }: Props) {
-  const [form, setForm] = useState({ applicant_name: '', equipment_desc: '', issue_detail: '', urgency: 'normal' })
+  const user = useCurrentUser()
+  const [form, setForm] = useState({ equipment_desc: '', issue_detail: '', urgency: 'normal' })
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
 
@@ -37,7 +39,7 @@ export default function MaintenanceModal({ open, onClose }: Props) {
     <Modal title="유지보수 신청" subtitle="Service Request" open={open} onClose={onClose}>
       <form className="space-y-3" onSubmit={handleSubmit}>
         <FormField label="신청자명">
-          <Input type="text" placeholder="홍길동" value={form.applicant_name} onChange={set('applicant_name')} required />
+          <Input type="text" value={user.name} readOnly disabled />
         </FormField>
         <FormField label="장비/시설 종류">
           <Input type="text" placeholder="서버 랙 #3, 노트북 등" value={form.equipment_desc} onChange={set('equipment_desc')} required />

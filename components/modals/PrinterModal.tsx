@@ -2,11 +2,13 @@
 
 import { useState } from 'react'
 import Modal, { FormField, Input, Select, ModalActions } from '../Modal'
+import { useCurrentUser } from '@/lib/session-client'
 
 interface Props { open: boolean; onClose: () => void }
 
 export default function PrinterModal({ open, onClose }: Props) {
-  const [form, setForm] = useState({ applicant_name: '', printer_id: '프린터 #1 (1층 로비)', copies: '1' })
+  const user = useCurrentUser()
+  const [form, setForm] = useState({ printer_id: '프린터 #1 (1층 로비)', copies: '1' })
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
 
@@ -37,7 +39,7 @@ export default function PrinterModal({ open, onClose }: Props) {
     <Modal title="프린터 사용 신청" subtitle="Service Request" open={open} onClose={onClose}>
       <form className="space-y-3" onSubmit={handleSubmit}>
         <FormField label="신청자명">
-          <Input type="text" placeholder="홍길동" value={form.applicant_name} onChange={set('applicant_name')} required />
+          <Input type="text" value={user.name} readOnly disabled />
         </FormField>
         <FormField label="프린터 선택">
           <Select value={form.printer_id} onChange={set('printer_id')}>

@@ -1,4 +1,5 @@
-import { sbSelect, sbSelectOne, sbInsert, sbUpdate } from './supabase'
+import { sbSelect, sbSelectOne, sbInsert, sbUpdate, sbDelete } from './supabase'
+import { T } from './tables'
 import type {
   ServerStatusRow, SecurityStatusRow, ServerLoadRow,
   IncidentRow, NoticeRow, DashboardData,
@@ -6,21 +7,8 @@ import type {
   PrinterRequestPayload, MaintenanceRequestPayload,
   IPRequestRow, EquipmentRequestRow, PrinterRequestRow, MaintenanceRequestRow,
   NetworkDeviceRow,
+  BannerRow, BannerPayload,
 } from './types'
-
-// 한 Supabase DB 를 여러 앱이 공유하므로 본 앱의 모든 테이블은 soc_ 접두사를 사용한다.
-const T = {
-  serverStatus:        'soc_server_status',
-  securityStatus:      'soc_security_status',
-  serverLoad:          'soc_server_load',
-  incidents:           'soc_incidents',
-  notices:             'soc_notices',
-  ipRequests:          'soc_ip_requests',
-  equipmentRequests:   'soc_equipment_requests',
-  printerRequests:     'soc_printer_requests',
-  maintenanceRequests: 'soc_maintenance_requests',
-  networkDevices:      'soc_network_devices',
-} as const
 
 /* ─── GET ─── */
 
@@ -67,8 +55,21 @@ export async function insertIncident(title: string, status = 'processing'): Prom
   return sbInsert<IncidentRow>(T.incidents, { title, status })
 }
 
-export async function insertNotice(title: string, type = 'general'): Promise<NoticeRow> {
-  return sbInsert<NoticeRow>(T.notices, { title, type })
+export async function insertNotice(payload: { title: string; type?: string; body?: string | null }): Promise<NoticeRow> {
+  return sbInsert<NoticeRow>(T.notices, {
+    title: payload.title,
+    type: payload.type ?? 'general',
+    body: payload.body ?? null,
+  })
+}
+
+export async function updateNotice(id: number, patch: { title?: string; type?: string; body?: string | null }): Promise<number> {
+  const rows = await sbUpdate<NoticeRow>(T.notices, { id: `eq.${id}` }, patch)
+  return rows.length
+}
+
+export async function deleteNotice(id: number): Promise<number> {
+  return sbDelete(T.notices, { id: `eq.${id}` })
 }
 
 export async function insertIPRequest(payload: IPRequestPayload): Promise<IPRequestRow> {
@@ -107,6 +108,33 @@ export async function getMaintenanceRequests(): Promise<MaintenanceRequestRow[]>
 
 export async function getNetworkDevices(): Promise<NetworkDeviceRow[]> {
   return sbSelect<NetworkDeviceRow>(T.networkDevices, { order: 'hostname.asc' })
+}
+
+/* ─── Banners ─── */
+
+export async function getBanners(): Promise<BannerRow[]> {
+  return sbSelect<BannerRow>(T.banners, { order: 'sort_order.asc' })
+}
+
+export async function getActiveBanners(): Promise<BannerRow[]> {
+  return sbSelect<BannerRow>(T.banners, { order: 'sort_order.asc', filters: { active: 'eq.true' } })
+}
+
+export async function insertBanner(payload: BannerPayload): Promise<BannerRow> {
+  return sbInsert<BannerRow>(T.banners, {
+    text: payload.text,
+    sort_order: payload.sort_order ?? 0,
+    active: payload.active ?? true,
+  })
+}
+
+export async function updateBanner(id: number, patch: Partial<BannerPayload>): Promise<number> {
+  const rows = await sbUpdate<BannerRow>(T.banners, { id: `eq.${id}` }, patch)
+  return rows.length
+}
+
+export async function deleteBanner(id: number): Promise<number> {
+  return sbDelete(T.banners, { id: `eq.${id}` })
 }
 
 /* ─── Status updates ─── */

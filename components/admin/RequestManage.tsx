@@ -21,27 +21,37 @@ export function StatusBadge({ status }: { status: RequestStatus }) {
 }
 
 /* ── 액션 버튼 ── */
-type Action = { label: string; next: RequestStatus; style: 'primary' | 'danger' | 'ghost' }
+type Action = {
+  label: string
+  next: RequestStatus
+  style: 'primary' | 'danger' | 'ghost'
+  confirm?: string  // confirm 다이얼로그 메시지 (있으면 클릭 시 확인)
+}
 
 function getActions(status: RequestStatus, isMaintenance = false): Action[] {
   switch (status) {
     case 'pending':
       return [
         { label: '승인', next: 'approved', style: 'primary' },
-        { label: '거절', next: 'rejected', style: 'danger' },
+        { label: '거절', next: 'rejected', style: 'danger', confirm: '이 신청을 거절할까요?' },
       ]
     case 'approved':
       return isMaintenance
         ? [
-            { label: '처리중', next: 'processing', style: 'ghost' },
-            { label: '거절',   next: 'rejected',   style: 'danger' },
+            { label: '처리중',   next: 'processing', style: 'ghost' },
+            { label: '거절',     next: 'rejected',   style: 'danger', confirm: '이 신청을 거절할까요?' },
+            { label: '승인취소', next: 'pending',    style: 'ghost' },
           ]
         : [
-            { label: '완료', next: 'completed', style: 'ghost' },
-            { label: '거절', next: 'rejected',  style: 'danger' },
+            { label: '완료',     next: 'completed', style: 'ghost', confirm: '완료 처리할까요?' },
+            { label: '거절',     next: 'rejected',  style: 'danger', confirm: '이 신청을 거절할까요?' },
+            { label: '승인취소', next: 'pending',   style: 'ghost' },
           ]
     case 'processing':
-      return [{ label: '처리완료', next: 'completed', style: 'primary' }]
+      return [
+        { label: '처리완료', next: 'completed', style: 'primary', confirm: '처리 완료로 변경할까요?' },
+        { label: '취소',     next: 'approved',  style: 'ghost' },
+      ]
     case 'rejected':
       return [{ label: '재승인', next: 'approved', style: 'ghost' }]
     default:
@@ -67,11 +77,12 @@ export function ActionButtons({ id, status, apiPath, isMaintenance, onUpdate }: 
   const actions = getActions(status, isMaintenance)
   if (actions.length === 0) return <span className="text-xs text-secondary">—</span>
 
-  const handleClick = async (next: RequestStatus) => {
+  const handleClick = async (action: Action) => {
+    if (action.confirm && !confirm(action.confirm)) return
     await fetch(`${apiPath}/${id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status: next }),
+      body: JSON.stringify({ status: action.next }),
     })
     onUpdate()
   }
@@ -81,7 +92,7 @@ export function ActionButtons({ id, status, apiPath, isMaintenance, onUpdate }: 
       {actions.map(a => (
         <button
           key={a.next}
-          onClick={() => handleClick(a.next)}
+          onClick={() => handleClick(a)}
           className={`px-2.5 py-1 rounded text-xs font-semibold transition-colors ${BTN_STYLE[a.style]}`}
         >
           {a.label}

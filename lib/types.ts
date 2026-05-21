@@ -1,3 +1,14 @@
+export type UserRole = 'admin' | 'manager' | 'member'
+
+export interface SessionUser {
+  id: number
+  email: string
+  name: string
+  department: string
+  student_id: string
+  role: UserRole
+}
+
 export interface ServerStatusRow {
   id: number
   temperature: number
@@ -36,6 +47,7 @@ export interface IncidentRow {
 export interface NoticeRow {
   id: number
   title: string
+  body: string | null
   type: 'notice' | 'info' | 'general'
   created_at: string
 }
@@ -73,6 +85,20 @@ export interface MaintenanceRequestRow extends MaintenanceRequestPayload {
   id: number
   status: RequestStatus
   created_at: string
+}
+
+export interface BannerRow {
+  id: number
+  text: string
+  sort_order: number
+  active: boolean
+  created_at: string
+}
+
+export interface BannerPayload {
+  text: string
+  sort_order?: number
+  active?: boolean
 }
 
 export interface NetworkDeviceRow {

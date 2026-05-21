@@ -87,3 +87,19 @@ export async function sbUpdate<T>(
   })
   return parse<T[]>(res)
 }
+
+export async function sbDelete(
+  table: string,
+  filters: Record<string, string>,
+): Promise<number> {
+  const params = new URLSearchParams()
+  for (const [col, expr] of Object.entries(filters)) params.set(col, expr)
+  const url = `${REST}/${table}?${params.toString()}`
+  const res = await fetch(url, {
+    method: 'DELETE',
+    headers: authHeaders({ Prefer: 'return=representation' }),
+    cache: 'no-store',
+  })
+  const rows = await parse<unknown[]>(res)
+  return Array.isArray(rows) ? rows.length : 0
+}

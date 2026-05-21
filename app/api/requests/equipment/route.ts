@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { insertEquipmentRequest, getEquipmentRequests } from '@/lib/queries'
-import type { EquipmentRequestPayload } from '@/lib/types'
+import { getCurrentUser } from '@/lib/session'
 
 export const dynamic = 'force-dynamic'
 
@@ -16,12 +16,18 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
-    const body: EquipmentRequestPayload = await req.json()
-    const { applicant_name, equipment_type, rental_start, rental_end } = body
-    if (!applicant_name || !equipment_type || !rental_start || !rental_end) {
+    const user = await getCurrentUser()
+    const body = await req.json() as { equipment_type?: string; rental_start?: string; rental_end?: string }
+    const { equipment_type, rental_start, rental_end } = body
+    if (!equipment_type || !rental_start || !rental_end) {
       return NextResponse.json({ success: false, error: '모든 필드를 입력해주세요.' }, { status: 400 })
     }
-    const row = await insertEquipmentRequest(body)
+    const row = await insertEquipmentRequest({
+      applicant_name: user.name,
+      equipment_type,
+      rental_start,
+      rental_end,
+    })
     return NextResponse.json({ success: true, id: row.id }, { status: 201 })
   } catch (err) {
     console.error('[/api/requests/equipment] POST error:', err)

@@ -76,7 +76,15 @@ export function Textarea(props: React.TextareaHTMLAttributes<HTMLTextAreaElement
   return <textarea {...props} className={`${INPUT_CLS} resize-none`} />
 }
 
-export function ModalActions({ onClose, submitting }: { onClose: () => void; submitting?: boolean }) {
+export function ModalActions({
+  onClose,
+  submitting,
+  submitLabel = '신청하기',
+}: {
+  onClose: () => void
+  submitting?: boolean
+  submitLabel?: string
+}) {
   return (
     <div className="flex gap-2 pt-2">
       <button
@@ -93,7 +101,7 @@ export function ModalActions({ onClose, submitting }: { onClose: () => void; sub
         className="flex-1 py-2 rounded text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-60"
         style={{ background: 'linear-gradient(135deg, #000d2f, #00205b)' }}
       >
-        {submitting ? '처리 중...' : '신청하기'}
+        {submitting ? '처리 중...' : submitLabel}
       </button>
     </div>
   )

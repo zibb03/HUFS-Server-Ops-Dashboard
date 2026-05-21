@@ -1,4 +1,10 @@
-const notices = [
+'use client'
+
+import { useEffect, useState } from 'react'
+import type { BannerRow } from '@/lib/types'
+
+// DB(soc_banners) 미적용 시 폴백 텍스트
+const FALLBACK = [
   '📢 2024년 5월 22일 (수) 전체 서버 통합 업그레이드 프로그램 시작',
   '📋 보안 강화를 위한 새로운 네트워크 보안 프로토콜 적용',
   '⚠️ 서버실 출입 시 각 층 증명에 대한 업데이트 지침 안내',
@@ -13,7 +19,20 @@ interface Props {
 }
 
 export default function Ticker({ onMenuClick, isAdmin, onAdminToggle }: Props) {
-  const text = notices.join('   |   ')
+  const [texts, setTexts] = useState<string[]>(FALLBACK)
+
+  useEffect(() => {
+    fetch('/api/banners?active=1')
+      .then(r => r.json())
+      .then(j => {
+        if (j.success && Array.isArray(j.data) && j.data.length > 0) {
+          setTexts((j.data as BannerRow[]).map(b => b.text))
+        }
+      })
+      .catch(() => { /* 폴백 유지 */ })
+  }, [])
+
+  const text = texts.join('   |   ')
 
   return (
     <div

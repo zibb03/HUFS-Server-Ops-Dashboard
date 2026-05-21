@@ -5,10 +5,12 @@ import { usePathname } from 'next/navigation'
 import Ticker from './Ticker'
 import Sidebar from './Sidebar'
 import { AdminContext } from '@/lib/admin-context'
+import { SessionProvider } from '@/lib/session-client'
+import type { SessionUser } from '@/lib/types'
 
-export default function AppShell({ children }: { children: React.ReactNode }) {
+export default function AppShell({ user, children }: { user: SessionUser; children: React.ReactNode }) {
   const [open, setOpen]       = useState(false)
-  const [isAdmin, setIsAdmin] = useState(false)
+  const [isAdmin, setIsAdmin] = useState(user.role === 'admin')
   const pathname = usePathname()
 
   // 페이지 이동 시 사이드바 닫기
@@ -21,9 +23,10 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   }, [open])
 
   // 로그인 페이지는 쉘 없이 렌더링
-  if (pathname === '/login') return <>{children}</>
+  if (pathname === '/login') return <SessionProvider user={user}>{children}</SessionProvider>
 
   return (
+    <SessionProvider user={user}>
     <AdminContext.Provider value={isAdmin}>
       <Ticker
         onMenuClick={() => setOpen(true)}
@@ -65,5 +68,6 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         </main>
       </div>
     </AdminContext.Provider>
+    </SessionProvider>
   )
 }
