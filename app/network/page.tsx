@@ -1,6 +1,8 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useAdmin } from '@/lib/admin-context'
+import NetworkDeviceModal from '@/components/modals/NetworkDeviceModal'
 import type { NetworkDeviceRow } from '@/lib/types'
 
 const STATUS_CFG = {
@@ -17,11 +19,34 @@ const STATS = [
 ]
 
 export default function NetworkPage() {
+  const isAdmin = useAdmin()
   const [devices, setDevices] = useState<NetworkDeviceRow[]>([])
+  const [open, setOpen] = useState(false)
+  const [editing, setEditing] = useState<NetworkDeviceRow | null>(null)
 
-  useEffect(() => {
+  const load = () =>
     fetch('/api/network').then(r => r.json()).then(j => { if (j.success) setDevices(j.data) })
-  }, [])
+
+  useEffect(() => { load() }, [])
+
+  const handleClose = () => {
+    setOpen(false)
+    setEditing(null)
+    load()
+  }
+
+  const handleEdit = (d: NetworkDeviceRow) => {
+    setEditing(d)
+    setOpen(true)
+  }
+
+  const handleDelete = async (d: NetworkDeviceRow) => {
+    if (!confirm(`"${d.hostname}" 장비를 삭제할까요?`)) return
+    const res = await fetch(`/api/network/${d.id}`, { method: 'DELETE' })
+    const json = await res.json()
+    if (!json.success) { alert(json.error ?? '삭제 실패'); return }
+    load()
+  }
 
   const counts = {
     total:   devices.length,
@@ -32,7 +57,18 @@ export default function NetworkPage() {
 
   return (
     <>
-      <PageHeader title="네트워크" sub="Network Status" />
+      <div className="mb-6 flex items-end justify-between">
+        <PageHeader title="네트워크" sub="Network Status" />
+        {isAdmin && (
+          <button
+            onClick={() => { setEditing(null); setOpen(true) }}
+            className="px-4 py-2 rounded text-sm font-semibold text-white"
+            style={{ background: 'linear-gradient(135deg, #000d2f, #00205b)' }}
+          >
+            + 장비 등록
+          </button>
+        )}
+      </div>
 
       {/* 요약 카드 */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
@@ -56,7 +92,7 @@ export default function NetworkPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-surface-low">
-                {['호스트명', 'IP 주소', 'MAC 주소', '디바이스 유형', '마지막 확인', '상태'].map(h => (
+                {['호스트명', 'IP 주소', 'MAC 주소', '디바이스 유형', '마지막 확인', '상태', ...(isAdmin ? ['관리'] : [])].map(h => (
                   <th key={h} className="text-left px-4 py-3 text-xs font-display font-semibold text-secondary uppercase tracking-wide">
                     {h}
                   </th>
@@ -79,23 +115,43 @@ export default function NetworkPage() {
                         {cfg.label}
                       </span>
                     </td>
+                    {isAdmin && (
+                      <td className="px-4 py-3">
+                        <div className="flex gap-1.5">
+                          <button
+                            onClick={() => handleEdit(d)}
+                            className="px-2.5 py-1 rounded text-xs font-semibold bg-surface-high text-on-surface hover:bg-surface-low transition-colors"
+                          >
+                            수정
+                          </button>
+                          <button
+                            onClick={() => handleDelete(d)}
+                            className="px-2.5 py-1 rounded text-xs font-semibold bg-red-50 text-red-700 hover:bg-red-100 transition-colors"
+                          >
+                            삭제
+                          </button>
+                        </div>
+                      </td>
+                    )}
                   </tr>
                 )
               })}
               {devices.length === 0 && (
-                <tr><td colSpan={6} className="px-4 py-8 text-center text-secondary text-sm">데이터 없음</td></tr>
+                <tr><td colSpan={isAdmin ? 7 : 6} className="px-4 py-8 text-center text-secondary text-sm">데이터 없음</td></tr>
               )}
             </tbody>
           </table>
         </div>
       </div>
+
+      <NetworkDeviceModal open={open} onClose={handleClose} device={editing} />
     </>
   )
 }
 
 function PageHeader({ title, sub }: { title: string; sub: string }) {
   return (
-    <div className="mb-6">
+    <div>
       <div className="text-xs font-display font-semibold uppercase tracking-widest text-secondary mb-1">
         Server Operations Center
       </div>

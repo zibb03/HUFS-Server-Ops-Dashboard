@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Link from 'next/link'
 import { useAdmin } from '@/lib/admin-context'
 import NoticeModal from '@/components/modals/NoticeModal'
 import BannerModal from '@/components/modals/BannerModal'
@@ -21,13 +22,16 @@ export default function NoticesPage() {
   const [bannerOpen, setBannerOpen] = useState(false)
   const [editingBanner, setEditingBanner] = useState<BannerRow | null>(null)
 
-  const load = () =>
-    fetch('/api/notices?limit=100').then(r => r.json()).then(j => { if (j.success) setNotices(j.data) })
+  // 관리자는 비공개 포함 전체(scope=all), 일반 사용자는 공개 공지만
+  const load = () => {
+    const url = isAdmin ? '/api/notices?scope=all&limit=100' : '/api/notices?limit=100'
+    fetch(url).then(r => r.json()).then(j => { if (j.success) setNotices(j.data) })
+  }
 
   const loadBanners = () =>
     fetch('/api/banners').then(r => r.json()).then(j => { if (j.success) setBanners(j.data) })
 
-  useEffect(() => { load(); loadBanners() }, [])
+  useEffect(() => { load(); loadBanners() }, [isAdmin])
 
   const handleClose = () => {
     setOpen(false)
@@ -107,19 +111,26 @@ export default function NoticesPage() {
           return (
             <div
               key={n.id}
-              className="flex items-start gap-4 px-5 py-4 hover:bg-surface transition-colors"
+              className="flex items-center gap-4 px-5 py-4 hover:bg-surface transition-colors"
               style={{ borderBottom: i < notices.length - 1 ? '1px solid #f2f4f6' : 'none' }}
             >
-              <span className={`flex-shrink-0 text-xs font-semibold px-2 py-0.5 rounded mt-0.5 ${cfg.className}`}>
+              <span className={`flex-shrink-0 text-xs font-semibold px-2 py-0.5 rounded ${cfg.className}`}>
                 {cfg.label}
               </span>
-              <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium text-on-surface">{n.title}</div>
-                {n.body && (
-                  <div className="text-xs text-on-surface/80 mt-1 whitespace-pre-wrap">{n.body}</div>
-                )}
+              {/* 제목 클릭 시 게시판 상세로 이동 */}
+              <Link href={`/notices/${n.id}`} className="flex-1 min-w-0 group">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium text-on-surface group-hover:text-primary group-hover:underline truncate">
+                    {n.title}
+                  </span>
+                  {!n.is_public && (
+                    <span className="flex-shrink-0 text-xs font-semibold px-1.5 py-0.5 rounded bg-surface-high text-secondary">
+                      비공개
+                    </span>
+                  )}
+                </div>
                 <div className="text-xs text-secondary mt-0.5">{n.created_at}</div>
-              </div>
+              </Link>
               {isAdmin && (
                 <div className="flex-shrink-0 flex gap-1.5">
                   <button

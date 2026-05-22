@@ -12,15 +12,15 @@ interface Props {
 
 export default function NoticeModal({ open, onClose, notice }: Props) {
   const isEdit = !!notice
-  const [form, setForm] = useState({ title: '', type: 'general', body: '' })
+  const [form, setForm] = useState({ title: '', type: 'general', body: '', is_public: true })
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
 
   useEffect(() => {
     if (open) {
       setForm(notice
-        ? { title: notice.title, type: notice.type, body: notice.body ?? '' }
-        : { title: '', type: 'general', body: '' })
+        ? { title: notice.title, type: notice.type, body: notice.body ?? '', is_public: notice.is_public }
+        : { title: '', type: 'general', body: '', is_public: true })
       setError('')
     }
   }, [open, notice])
@@ -78,6 +78,16 @@ export default function NoticeModal({ open, onClose, notice }: Props) {
             value={form.body}
             onChange={e => setForm(p => ({ ...p, body: e.target.value }))}
           />
+        </FormField>
+        <FormField label="공개 여부">
+          <label className="flex items-center gap-2 h-9 px-3 bg-surface-low rounded text-sm text-on-surface cursor-pointer">
+            <input
+              type="checkbox"
+              checked={form.is_public}
+              onChange={e => setForm(p => ({ ...p, is_public: e.target.checked }))}
+            />
+            <span>{form.is_public ? '공개 — 모든 사용자에게 노출' : '비공개 — 관리자만 조회'}</span>
+          </label>
         </FormField>
         {error && <p className="text-xs text-error">{error}</p>}
         <ModalActions onClose={onClose} submitting={submitting} submitLabel={isEdit ? '수정' : '등록'} />

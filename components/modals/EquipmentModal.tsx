@@ -1,16 +1,33 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Modal, { FormField, Input, Select, ModalActions } from '../Modal'
 import { useCurrentUser } from '@/lib/session-client'
+import type { EquipmentItemRow } from '@/lib/types'
 
 interface Props { open: boolean; onClose: () => void }
 
 export default function EquipmentModal({ open, onClose }: Props) {
   const user = useCurrentUser()
-  const [form, setForm] = useState({ equipment_type: '노트북 (Dell XPS 13)', rental_start: '', rental_end: '' })
+  const [items, setItems] = useState<EquipmentItemRow[]>([])
+  const [form, setForm] = useState({ equipment_type: '', rental_start: '', rental_end: '' })
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
+
+  // 모달 열릴 때 대여 가능(available_qty>0) 장비 카탈로그 조회
+  useEffect(() => {
+    if (!open) return
+    setError('')
+    fetch('/api/equipment-items?available=1')
+      .then(r => r.json())
+      .then(j => {
+        if (j.success) {
+          setItems(j.data)
+          setForm(p => ({ ...p, equipment_type: j.data[0]?.name ?? '' }))
+        }
+      })
+      .catch(() => setError('장비 목록을 불러오지 못했습니다.'))
+  }, [open])
 
   const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
     setForm(prev => ({ ...prev, [k]: e.target.value }))
@@ -35,6 +52,8 @@ export default function EquipmentModal({ open, onClose }: Props) {
     }
   }
 
+  const noStock = items.length === 0
+
   return (
     <Modal title="장비 대여 신청" subtitle="Service Request" open={open} onClose={onClose}>
       <form className="space-y-3" onSubmit={handleSubmit}>
@@ -42,13 +61,17 @@ export default function EquipmentModal({ open, onClose }: Props) {
           <Input type="text" value={user.name} readOnly disabled />
         </FormField>
         <FormField label="대여 장비">
-          <Select value={form.equipment_type} onChange={set('equipment_type')}>
-            <option>노트북 (Dell XPS 13)</option>
-            <option>태블릿 (iPad Pro)</option>
-            <option>카메라 (Canon EOS R)</option>
-            <option>빔프로젝터</option>
-            <option>기타</option>
-          </Select>
+          {noStock ? (
+            <p className="text-xs text-secondary py-2">현재 대여 가능한 장비가 없습니다.</p>
+          ) : (
+            <Select value={form.equipment_type} onChange={set('equipment_type')}>
+              {items.map(it => (
+                <option key={it.id} value={it.name}>
+                  {it.name} — 대여 가능 {it.available_qty}대
+                </option>
+              ))}
+            </Select>
+          )}
         </FormField>
         <div className="grid grid-cols-2 gap-2">
           <FormField label="대여 시작일">
@@ -59,7 +82,7 @@ export default function EquipmentModal({ open, onClose }: Props) {
           </FormField>
         </div>
         {error && <p className="text-xs text-error">{error}</p>}
-        <ModalActions onClose={onClose} submitting={submitting} />
+        <ModalActions onClose={onClose} submitting={submitting || noStock} />
       </form>
     </Modal>
   )

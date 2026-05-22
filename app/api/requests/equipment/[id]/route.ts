@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { updateEquipmentRequestStatus } from '@/lib/queries'
+import {
+  updateEquipmentRequestStatus, getEquipmentRequestById,
+  getEquipmentItemByName, adjustEquipmentStock,
+} from '@/lib/queries'
 import { requireRole } from '@/lib/session'
 import type { RequestStatus } from '@/lib/types'
 
@@ -13,8 +16,30 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
       return NextResponse.json({ success: false, error: '유효하지 않은 상태값' }, { status: 400 })
     }
     const id = Number(params.id)
+    const reqRow = await getEquipmentRequestById(id)
+    if (!reqRow) return NextResponse.json({ success: false, error: '해당 항목 없음' }, { status: 404 })
+
+    // 재고 점유 상태는 'approved' 하나뿐.
+    // approved 진입 → -1 차감, approved 이탈 → +1 복구.
+    const wasApproved = reqRow.status === 'approved'
+    const isApproved = status === 'approved'
+
+    if (!wasApproved && isApproved) {
+      const item = await getEquipmentItemByName(reqRow.equipment_type)
+      if (item && item.available_qty <= 0) {
+        return NextResponse.json({ success: false, error: '대여 가능 수량이 없어 승인할 수 없습니다.' }, { status: 400 })
+      }
+    }
+
     const changes = await updateEquipmentRequestStatus(id, status)
     if (changes === 0) return NextResponse.json({ success: false, error: '해당 항목 없음' }, { status: 404 })
+
+    if (!wasApproved && isApproved) {
+      await adjustEquipmentStock(reqRow.equipment_type, -1)
+    } else if (wasApproved && !isApproved) {
+      await adjustEquipmentStock(reqRow.equipment_type, +1)
+    }
+
     return NextResponse.json({ success: true })
   } catch (err) {
     if ((err as { status?: number }).status === 403) {

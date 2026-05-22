@@ -37,10 +37,13 @@ export interface ServerLoadRow {
   updated_at: string
 }
 
+export type IncidentStatus = 'processing' | 'done'
+
 export interface IncidentRow {
   id: number
   title: string
-  status: 'processing' | 'done'
+  body: string | null
+  status: IncidentStatus
   created_at: string
 }
 
@@ -49,6 +52,7 @@ export interface NoticeRow {
   title: string
   body: string | null
   type: 'notice' | 'info' | 'general'
+  is_public: boolean
   created_at: string
 }
 
@@ -87,6 +91,14 @@ export interface MaintenanceRequestRow extends MaintenanceRequestPayload {
   created_at: string
 }
 
+export interface EquipmentItemRow {
+  id: number
+  name: string
+  total_qty: number
+  available_qty: number
+  created_at: string
+}
+
 export interface BannerRow {
   id: number
   text: string
@@ -101,14 +113,24 @@ export interface BannerPayload {
   active?: boolean
 }
 
+export type DeviceStatus = 'online' | 'offline' | 'warning'
+
 export interface NetworkDeviceRow {
   id: number
   hostname: string
   ip_address: string
   mac_address: string
   device_type: string
-  status: 'online' | 'offline' | 'warning'
+  status: DeviceStatus
   last_seen: string
+}
+
+export interface NetworkDevicePayload {
+  hostname: string
+  ip_address: string
+  mac_address: string
+  device_type: string
+  status?: DeviceStatus
 }
 
 /* ── Request payloads ── */

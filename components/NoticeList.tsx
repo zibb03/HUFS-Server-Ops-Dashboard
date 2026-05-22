@@ -1,10 +1,11 @@
+import Link from 'next/link'
 import type { NoticeRow } from '@/lib/types'
 
 const DEFAULTS: NoticeRow[] = [
-  { id: 1, title: '전체 서버 통합 업그레이드 프로그램 시작',             body: null, type: 'notice',  created_at: '2024-05-22' },
-  { id: 2, title: '보안 강화를 위한 새로운 네트워크 보안 프로토콜 적용', body: null, type: 'notice',  created_at: '2024-05-22' },
-  { id: 3, title: '서버실 출입 시 각 층 증명에 대한 업데이트 지침',      body: null, type: 'info',    created_at: '2024-05-21' },
-  { id: 4, title: '2024년 2분기 서버 정기 점검 일정 안내',               body: null, type: 'general', created_at: '2024-05-18' },
+  { id: 1, title: '전체 서버 통합 업그레이드 프로그램 시작',             body: null, type: 'notice',  is_public: true, created_at: '2024-05-22' },
+  { id: 2, title: '보안 강화를 위한 새로운 네트워크 보안 프로토콜 적용', body: null, type: 'notice',  is_public: true, created_at: '2024-05-22' },
+  { id: 3, title: '서버실 출입 시 각 층 증명에 대한 업데이트 지침',      body: null, type: 'info',    is_public: true, created_at: '2024-05-21' },
+  { id: 4, title: '2024년 2분기 서버 정기 점검 일정 안내',               body: null, type: 'general', is_public: true, created_at: '2024-05-18' },
 ]
 
 const TYPE_CONFIG = {
@@ -28,7 +29,7 @@ export default function NoticeList({ data = DEFAULTS }: Props) {
           </div>
           <h2 className="font-display font-bold text-base text-on-surface">공지사항</h2>
         </div>
-        <button className="text-xs text-primary hover:underline">전체 보기</button>
+        <Link href="/notices" className="text-xs text-primary hover:underline">전체 보기</Link>
       </div>
 
       <div>

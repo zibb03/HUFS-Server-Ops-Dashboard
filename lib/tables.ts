@@ -14,6 +14,7 @@ export const T = {
   users:               'soc_users',
   auditLog:            'soc_audit_log',
   banners:             'soc_banners',
+  equipmentItems:      'soc_equipment_items',
 } as const
 
 export type TableName = (typeof T)[keyof typeof T]

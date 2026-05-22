@@ -1,10 +1,11 @@
+import Link from 'next/link'
 import type { IncidentRow } from '@/lib/types'
 
 const DEFAULTS: IncidentRow[] = [
-  { id: 1, title: '학과 네트워크 지연',             status: 'processing', created_at: '2024-05-22 09:15' },
-  { id: 2, title: '프린터 클라이언트 #4 오프라인',  status: 'processing', created_at: '2024-05-21 14:30' },
-  { id: 3, title: '무단 로그인 시도 5회 차단',       status: 'done',       created_at: '2024-05-20 22:44' },
-  { id: 4, title: 'DB 서버 응답 지연 해결',          status: 'done',       created_at: '2024-05-19 18:10' },
+  { id: 1, title: '학과 네트워크 지연',             body: null, status: 'processing', created_at: '2024-05-22 09:15' },
+  { id: 2, title: '프린터 클라이언트 #4 오프라인',  body: null, status: 'processing', created_at: '2024-05-21 14:30' },
+  { id: 3, title: '무단 로그인 시도 5회 차단',       body: null, status: 'done',       created_at: '2024-05-20 22:44' },
+  { id: 4, title: 'DB 서버 응답 지연 해결',          body: null, status: 'done',       created_at: '2024-05-19 18:10' },
 ]
 
 const STATUS_CONFIG = {
@@ -27,7 +28,7 @@ export default function IncidentList({ data = DEFAULTS }: Props) {
           </div>
           <h2 className="font-display font-bold text-base text-on-surface">장애 대응 현황</h2>
         </div>
-        <button className="text-xs text-primary hover:underline">로그 보기</button>
+        <Link href="/logs" className="text-xs text-primary hover:underline">로그 보기</Link>
       </div>
 
       <div className="space-y-2">
