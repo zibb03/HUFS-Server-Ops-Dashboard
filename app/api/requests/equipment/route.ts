@@ -6,7 +6,9 @@ export const dynamic = 'force-dynamic'
 
 export async function GET() {
   try {
-    const data = await getEquipmentRequests()
+    const user = await getCurrentUser()
+    const isAdmin = user.role === 'admin' || user.role === 'manager'
+    const data = await getEquipmentRequests(isAdmin ? {} : { userId: user.id })
     return NextResponse.json({ success: true, data })
   } catch (err) {
     console.error('[/api/requests/equipment] GET error:', err)
@@ -35,7 +37,7 @@ export async function POST(req: NextRequest) {
       equipment_type,
       rental_start,
       rental_end,
-    })
+    }, user.id)
     return NextResponse.json({ success: true, id: row.id }, { status: 201 })
   } catch (err) {
     console.error('[/api/requests/equipment] POST error:', err)

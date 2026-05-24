@@ -67,29 +67,18 @@ export interface DashboardData {
 export type RequestStatus = 'pending' | 'approved' | 'rejected' | 'processing' | 'completed'
 
 /* ── Request rows (DB) ── */
-export interface IPRequestRow extends IPRequestPayload {
+interface BaseRequestRow {
   id: number
   status: RequestStatus
   created_at: string
+  user_id: number | null
+  reject_reason: string | null
 }
 
-export interface EquipmentRequestRow extends EquipmentRequestPayload {
-  id: number
-  status: RequestStatus
-  created_at: string
-}
-
-export interface PrinterRequestRow extends PrinterRequestPayload {
-  id: number
-  status: RequestStatus
-  created_at: string
-}
-
-export interface MaintenanceRequestRow extends MaintenanceRequestPayload {
-  id: number
-  status: RequestStatus
-  created_at: string
-}
+export interface IPRequestRow extends IPRequestPayload, BaseRequestRow {}
+export interface EquipmentRequestRow extends EquipmentRequestPayload, BaseRequestRow {}
+export interface PrinterRequestRow extends PrinterRequestPayload, BaseRequestRow {}
+export interface MaintenanceRequestRow extends MaintenanceRequestPayload, BaseRequestRow {}
 
 export interface EquipmentItemRow {
   id: number

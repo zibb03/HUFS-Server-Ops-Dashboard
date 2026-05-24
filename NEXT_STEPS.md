@@ -21,48 +21,19 @@
 
 ## 1. 적용 필요한 마이그레이션
 
-- [ ] `supabase/migrations/2026_05_21_body_and_banners.sql` — Supabase SQL Editor에 적용
-  - 공지 `body` 컬럼 추가
-  - `soc_banners` 테이블 신규 (초기 데이터 5건 포함)
+Supabase SQL Editor에 순서대로 적용:
+
+- [ ] `2026_05_21_body_and_banners.sql` — 공지 `body` 컬럼 + `soc_banners` 테이블
+- [ ] `2026_05_21_incident_body.sql` — 장애 `body` 컬럼
+- [ ] `2026_05_21_notice_public.sql` — 공지 `is_public` 컬럼
+- [ ] `2026_05_21_equipment_items.sql` — `soc_equipment_items` 카탈로그 테이블
+- [ ] `2026_05_21_request_reject_userid.sql` — 신청 4종에 `reject_reason`, `user_id` 컬럼
 
 ---
 
-## 2. 미구현 기능 (우선순위 순)
+## 2. 미구현 기능
 
-### A. 신청 관리 보강
-- [ ] **반려 사유 입력 모달** — 거절 시 모달로 사유 입력 → 신청 row에 `reject_reason` 저장
-  - 필요: `soc_*_requests` 테이블 4종에 `reject_reason TEXT` 컬럼 추가
-- [ ] **검색·상태필터·정렬·페이지네이션** — `app/requests/*/page.tsx` 4종 공통
-  - 쿼리스트링 기반 URL (예: `?q=...&status=pending&page=2`)
-  - `lib/queries.ts`에 `listRequests({type, status, q, page, sort})` 추가
-- [ ] **내 신청 내역** — 일반 사용자는 본인 `user_id` 것만 조회
-  - 필요: 신청 테이블에 `user_id BIGINT` 컬럼 추가
-- [ ] **일괄 처리** — 다중 선택 후 일괄 승인/거절
-- [ ] **CSV 내보내기** — 페이지별 헤더에 버튼 (클라이언트 Blob 생성)
-
-### B. 장애(인시던트) 관리
-- [ ] 장애 등록 모달 + `/api/incidents` POST
-- [ ] 장애 수정/삭제 + 상태 전환(processing↔done) UI
-- [ ] `IncidentModal.tsx` 신규
-- [ ] `/api/incidents/[id]` PATCH/DELETE
-- [ ] `lib/queries.ts`에 `updateIncident`, `deleteIncident`
-
-### C. 네트워크 장비 관리
-- [ ] 장비 등록/수정/삭제 모달 + `/api/network` CUD
-- [ ] `NetworkDeviceModal.tsx`
-- [ ] 상태(online/offline/warning) 수동 변경
-
-### D. 감사 로그
-- [ ] `soc_audit_log` 테이블 신규
-- [ ] `lib/audit.ts: logAudit({actor, action, target, detail})`
-- [ ] 모든 변경 API에서 호출
-- [ ] `/admin/audit` 관리자 뷰
-
-### E. 공통 UX
-- [ ] 토스트 (`Toast.tsx`, `lib/toast.ts`)
-- [ ] 에러 바운더리 (`app/error.tsx`)
-- [ ] 로딩 스켈레톤 (`app/(...)/loading.tsx`)
-- [ ] `zod`로 API 페이로드 검증
+(현재 큰 미구현 항목 없음 — 필요 시 추가)
 
 ---
 
@@ -75,7 +46,7 @@
 | 로그인 페이지 | "건너뛰기" 버튼 → `hufs_auth=1` 쿠키 | Google OAuth 콜백 |
 | 세션 | `lib/session.ts`의 `DEMO_USER` 상수 (admin) | `auth.getUser()` + `profiles.role` |
 | 이메일 알림 | (미구현) — 추가 시 `console.log` | Resend API |
-| 모니터링 데이터 | seed (`server_status`, `security_status`, `server_load`) | ingest API + 실측 |
+| 모니터링 데이터 | seed (`server_status` 등) | k8s Node Exporter → Prometheus → ingest |
 
 ---
 
@@ -95,10 +66,16 @@
 ## 5. 완료된 것
 
 - [x] 호환 레이어 (`lib/tables.ts`, `lib/session.ts`, `lib/session-client.tsx`)
-- [x] 신청 모달 4종 본인정보 자동채움 (readonly)
-- [x] 신청 POST에서 user_id/신원 강제 주입
-- [x] 신청 PATCH 4종 `requireRole(['admin', 'manager'])` 가드
-- [x] 신청 액션 — 유지보수 취소/되돌리기, 거절·완료 confirm
-- [x] 공지 작성/수정/삭제 + 본문(body) + 관리자 가드
-- [x] `soc_banners` 테이블 + API + BannerModal + `/notices` 관리 섹션
-- [x] Ticker 동적 fetch (폴백 텍스트 유지)
+- [x] 신청 모달 4종 본인정보 자동채움 + POST에서 신원 강제 주입
+- [x] 신청 PATCH 4종 `requireRole` 가드 + 유지보수 취소/되돌리기, 거절·완료 confirm
+- [x] 공지 작성/수정/삭제 + 본문(body) + 공개/비공개(`is_public`)
+- [x] 공지 게시판 상세 페이지 `/notices/[id]` (비공개는 관리자만)
+- [x] `soc_banners` 테이블 + 관리 UI + Ticker 동적 fetch
+- [x] 장애(인시던트) 등록/수정/삭제/상태전환 + `IncidentModal`
+- [x] 네트워크 장비 등록/수정/삭제 + `NetworkDeviceModal`
+- [x] 장비 대여 카탈로그(`soc_equipment_items`) + `/equipment` 관리 페이지
+- [x] 장비 대여 모달 드롭다운 DB화 + 재고 차감/복구
+- [x] 신청 4종: 반려 사유 입력 모달 + 목록에 반려 사유 표시
+- [x] 신청 4종: 본인 신청만 조회(일반) / 전체(관리자) + 서버 user_id 주입
+- [x] 신청 4종: 검색·상태 필터·정렬·페이지네이션 (클라이언트)
+- [x] 신청 4종: 다중 선택 일괄 승인/거절 + CSV 내보내기 (UTF-8 BOM)

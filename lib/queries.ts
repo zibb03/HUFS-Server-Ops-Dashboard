@@ -101,42 +101,47 @@ export async function deleteNotice(id: number): Promise<number> {
   return sbDelete(T.notices, { id: `eq.${id}` })
 }
 
-export async function insertIPRequest(payload: IPRequestPayload): Promise<IPRequestRow> {
-  return sbInsert<IPRequestRow>(T.ipRequests, payload)
+export async function insertIPRequest(payload: IPRequestPayload, userId: number | null = null): Promise<IPRequestRow> {
+  return sbInsert<IPRequestRow>(T.ipRequests, { ...payload, user_id: userId })
 }
 
-export async function insertEquipmentRequest(payload: EquipmentRequestPayload): Promise<EquipmentRequestRow> {
-  return sbInsert<EquipmentRequestRow>(T.equipmentRequests, payload)
+export async function insertEquipmentRequest(payload: EquipmentRequestPayload, userId: number | null = null): Promise<EquipmentRequestRow> {
+  return sbInsert<EquipmentRequestRow>(T.equipmentRequests, { ...payload, user_id: userId })
 }
 
-export async function insertPrinterRequest(payload: PrinterRequestPayload): Promise<PrinterRequestRow> {
-  return sbInsert<PrinterRequestRow>(T.printerRequests, payload)
+export async function insertPrinterRequest(payload: PrinterRequestPayload, userId: number | null = null): Promise<PrinterRequestRow> {
+  return sbInsert<PrinterRequestRow>(T.printerRequests, { ...payload, user_id: userId })
 }
 
-export async function insertMaintenanceRequest(payload: MaintenanceRequestPayload): Promise<MaintenanceRequestRow> {
-  return sbInsert<MaintenanceRequestRow>(T.maintenanceRequests, payload)
+export async function insertMaintenanceRequest(payload: MaintenanceRequestPayload, userId: number | null = null): Promise<MaintenanceRequestRow> {
+  return sbInsert<MaintenanceRequestRow>(T.maintenanceRequests, { ...payload, user_id: userId })
 }
 
 /* ─── List queries ─── */
 
-export async function getIPRequests(): Promise<IPRequestRow[]> {
-  return sbSelect<IPRequestRow>(T.ipRequests, { order: 'created_at.desc' })
+// userId가 지정되면 본인 신청만, 아니면 전체
+function userFilter(userId?: number) {
+  return userId !== undefined ? { filters: { user_id: `eq.${userId}` } } : {}
 }
 
-export async function getEquipmentRequests(): Promise<EquipmentRequestRow[]> {
-  return sbSelect<EquipmentRequestRow>(T.equipmentRequests, { order: 'created_at.desc' })
+export async function getIPRequests(opts: { userId?: number } = {}): Promise<IPRequestRow[]> {
+  return sbSelect<IPRequestRow>(T.ipRequests, { order: 'created_at.desc', ...userFilter(opts.userId) })
+}
+
+export async function getEquipmentRequests(opts: { userId?: number } = {}): Promise<EquipmentRequestRow[]> {
+  return sbSelect<EquipmentRequestRow>(T.equipmentRequests, { order: 'created_at.desc', ...userFilter(opts.userId) })
 }
 
 export async function getEquipmentRequestById(id: number): Promise<EquipmentRequestRow | null> {
   return sbSelectOne<EquipmentRequestRow>(T.equipmentRequests, { filters: { id: `eq.${id}` } })
 }
 
-export async function getPrinterRequests(): Promise<PrinterRequestRow[]> {
-  return sbSelect<PrinterRequestRow>(T.printerRequests, { order: 'created_at.desc' })
+export async function getPrinterRequests(opts: { userId?: number } = {}): Promise<PrinterRequestRow[]> {
+  return sbSelect<PrinterRequestRow>(T.printerRequests, { order: 'created_at.desc', ...userFilter(opts.userId) })
 }
 
-export async function getMaintenanceRequests(): Promise<MaintenanceRequestRow[]> {
-  return sbSelect<MaintenanceRequestRow>(T.maintenanceRequests, { order: 'created_at.desc' })
+export async function getMaintenanceRequests(opts: { userId?: number } = {}): Promise<MaintenanceRequestRow[]> {
+  return sbSelect<MaintenanceRequestRow>(T.maintenanceRequests, { order: 'created_at.desc', ...userFilter(opts.userId) })
 }
 
 export async function getNetworkDevices(): Promise<NetworkDeviceRow[]> {
@@ -242,23 +247,32 @@ export async function adjustEquipmentStock(name: string, delta: number): Promise
 
 /* ─── Status updates ─── */
 
-async function updateStatus(table: string, id: number, status: string): Promise<number> {
-  const rows = await sbUpdate<{ id: number }>(table, { id: `eq.${id}` }, { status })
+// rejectReason이 undefined면 reject_reason 컬럼은 손대지 않음.
+// null 또는 string이면 그 값으로 set (반려 시 string, 다른 상태로 전환 시 null로 비움).
+async function updateStatus(
+  table: string,
+  id: number,
+  status: string,
+  rejectReason?: string | null,
+): Promise<number> {
+  const patch: { status: string; reject_reason?: string | null } = { status }
+  if (rejectReason !== undefined) patch.reject_reason = rejectReason
+  const rows = await sbUpdate<{ id: number }>(table, { id: `eq.${id}` }, patch)
   return rows.length
 }
 
-export function updateIPRequestStatus(id: number, status: string) {
-  return updateStatus(T.ipRequests, id, status)
+export function updateIPRequestStatus(id: number, status: string, rejectReason?: string | null) {
+  return updateStatus(T.ipRequests, id, status, rejectReason)
 }
 
-export function updateEquipmentRequestStatus(id: number, status: string) {
-  return updateStatus(T.equipmentRequests, id, status)
+export function updateEquipmentRequestStatus(id: number, status: string, rejectReason?: string | null) {
+  return updateStatus(T.equipmentRequests, id, status, rejectReason)
 }
 
-export function updatePrinterRequestStatus(id: number, status: string) {
-  return updateStatus(T.printerRequests, id, status)
+export function updatePrinterRequestStatus(id: number, status: string, rejectReason?: string | null) {
+  return updateStatus(T.printerRequests, id, status, rejectReason)
 }
 
-export function updateMaintenanceRequestStatus(id: number, status: string) {
-  return updateStatus(T.maintenanceRequests, id, status)
+export function updateMaintenanceRequestStatus(id: number, status: string, rejectReason?: string | null) {
+  return updateStatus(T.maintenanceRequests, id, status, rejectReason)
 }

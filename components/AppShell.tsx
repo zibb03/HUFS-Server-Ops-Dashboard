@@ -22,6 +22,16 @@ export default function AppShell({ user, children }: { user: SessionUser; childr
     return () => { document.body.style.overflow = '' }
   }, [open])
 
+  // 관리자 모드 토글 — 데모 사용자의 role을 쿠키에 저장해 서버 세션에도 반영.
+  // ops-dashboard 이식 시 이 토글은 제거되고 실제 profiles.role을 그대로 사용한다.
+  const handleAdminToggle = () => {
+    const next = !isAdmin
+    setIsAdmin(next)
+    const demoUser = { ...user, role: next ? 'admin' : 'member' as const }
+    document.cookie = `demo_user=${encodeURIComponent(JSON.stringify(demoUser))}; path=/; max-age=86400`
+    window.location.reload()
+  }
+
   // 로그인 페이지는 쉘 없이 렌더링
   if (pathname === '/login') return <SessionProvider user={user}>{children}</SessionProvider>
 
@@ -31,7 +41,7 @@ export default function AppShell({ user, children }: { user: SessionUser; childr
       <Ticker
         onMenuClick={() => setOpen(true)}
         isAdmin={isAdmin}
-        onAdminToggle={() => setIsAdmin(v => !v)}
+        onAdminToggle={handleAdminToggle}
       />
 
       {/* 모바일: calc(100vh - 48px), 데스크톱: calc(100vh - 36px) */}

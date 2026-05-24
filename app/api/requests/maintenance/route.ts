@@ -6,7 +6,9 @@ export const dynamic = 'force-dynamic'
 
 export async function GET() {
   try {
-    const data = await getMaintenanceRequests()
+    const user = await getCurrentUser()
+    const isAdmin = user.role === 'admin' || user.role === 'manager'
+    const data = await getMaintenanceRequests(isAdmin ? {} : { userId: user.id })
     return NextResponse.json({ success: true, data })
   } catch (err) {
     console.error('[/api/requests/maintenance] GET error:', err)
@@ -27,7 +29,7 @@ export async function POST(req: NextRequest) {
       equipment_desc,
       issue_detail,
       urgency: body.urgency ?? 'normal',
-    })
+    }, user.id)
     return NextResponse.json({ success: true, id: row.id }, { status: 201 })
   } catch (err) {
     console.error('[/api/requests/maintenance] POST error:', err)

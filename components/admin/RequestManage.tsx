@@ -1,5 +1,7 @@
 'use client'
 
+import { useState } from 'react'
+import Modal, { FormField, Textarea, ModalActions } from '../Modal'
 import type { RequestStatus } from '@/lib/types'
 
 /* ── 상태 배지 ── */
@@ -75,30 +77,72 @@ interface ActionButtonsProps {
 
 export function ActionButtons({ id, status, apiPath, isMaintenance, onUpdate }: ActionButtonsProps) {
   const actions = getActions(status, isMaintenance)
+  const [rejectOpen, setRejectOpen] = useState(false)
+  const [rejectReason, setRejectReason] = useState('')
+  const [submitting, setSubmitting] = useState(false)
+
   if (actions.length === 0) return <span className="text-xs text-secondary">—</span>
 
-  const handleClick = async (action: Action) => {
-    if (action.confirm && !confirm(action.confirm)) return
+  const patch = async (body: object) => {
     await fetch(`${apiPath}/${id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status: action.next }),
+      body: JSON.stringify(body),
     })
+  }
+
+  const handleClick = async (action: Action) => {
+    // 거절은 confirm 대신 사유 입력 모달
+    if (action.next === 'rejected') {
+      setRejectReason('')
+      setRejectOpen(true)
+      return
+    }
+    if (action.confirm && !confirm(action.confirm)) return
+    await patch({ status: action.next })
     onUpdate()
   }
 
+  const handleRejectSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setSubmitting(true)
+    try {
+      await patch({ status: 'rejected', reject_reason: rejectReason })
+      setRejectOpen(false)
+      onUpdate()
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
   return (
-    <div className="flex gap-1.5 flex-wrap">
-      {actions.map(a => (
-        <button
-          key={a.next}
-          onClick={() => handleClick(a)}
-          className={`px-2.5 py-1 rounded text-xs font-semibold transition-colors ${BTN_STYLE[a.style]}`}
-        >
-          {a.label}
-        </button>
-      ))}
-    </div>
+    <>
+      <div className="flex gap-1.5 flex-wrap">
+        {actions.map(a => (
+          <button
+            key={a.next}
+            onClick={() => handleClick(a)}
+            className={`px-2.5 py-1 rounded text-xs font-semibold transition-colors ${BTN_STYLE[a.style]}`}
+          >
+            {a.label}
+          </button>
+        ))}
+      </div>
+
+      <Modal title="신청 거절" subtitle="Rejection" open={rejectOpen} onClose={() => setRejectOpen(false)}>
+        <form className="space-y-3" onSubmit={handleRejectSubmit}>
+          <FormField label="반려 사유 (선택)">
+            <Textarea
+              placeholder="신청자에게 표시될 반려 사유를 입력해주세요."
+              rows={4}
+              value={rejectReason}
+              onChange={e => setRejectReason(e.target.value)}
+            />
+          </FormField>
+          <ModalActions onClose={() => setRejectOpen(false)} submitting={submitting} submitLabel="거절" />
+        </form>
+      </Modal>
+    </>
   )
 }
 

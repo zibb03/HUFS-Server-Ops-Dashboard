@@ -8,12 +8,15 @@ const VALID: RequestStatus[] = ['pending', 'approved', 'rejected', 'processing',
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
   try {
     await requireRole(['admin', 'manager'])
-    const { status } = await req.json() as { status: RequestStatus }
+    const { status, reject_reason } = await req.json() as { status: RequestStatus; reject_reason?: string }
     if (!VALID.includes(status)) {
       return NextResponse.json({ success: false, error: '유효하지 않은 상태값' }, { status: 400 })
     }
+    const reason = status === 'rejected'
+      ? (typeof reject_reason === 'string' && reject_reason.trim() ? reject_reason.trim() : null)
+      : null
     const id = Number(params.id)
-    const changes = await updateMaintenanceRequestStatus(id, status)
+    const changes = await updateMaintenanceRequestStatus(id, status, reason)
     if (changes === 0) return NextResponse.json({ success: false, error: '해당 항목 없음' }, { status: 404 })
     return NextResponse.json({ success: true })
   } catch (err) {
