@@ -1,6 +1,6 @@
-# HUFS ICE Server Ops Dashboard
+# HUFS ARES-SOC Dashboard
 
-한국외국어대학교 정보통신공학과(ICE)의 통합 서버 운영 대시보드.
+한국외국어대학교 AI로봇공학과(ARES-SOC)의 통합 서버 운영 대시보드.
 서버실 환경(온도/습도/화재), 보안 위협 수준, 서버 부하, 장애 대응 현황, 공지사항,
 그리고 IP·장비·프린터·유지보수 신청 흐름을 한 화면에서 관리합니다.
 
@@ -134,4 +134,4 @@ node scripts/vercel-env-push.js
 
 ## License
 
-내부 프로젝트 (한국외국어대학교 ICE).
+내부 프로젝트 (한국외국어대학교 ARES-SOC).

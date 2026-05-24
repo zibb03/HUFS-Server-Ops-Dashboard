@@ -9,7 +9,7 @@ const DEMO_USER: SessionUser = {
   id: 1,
   email: 'demo@hufs.ac.kr',
   name: '데모 사용자',
-  department: '정보통신공학과',
+  department: 'AI로봇공학과',
   student_id: '202400000',
   role: 'admin',
 }

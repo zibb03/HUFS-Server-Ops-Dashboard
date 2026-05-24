@@ -139,7 +139,7 @@ export default function Sidebar({ onClose, isAdmin = false }: Props) {
 
       {/* Footer */}
       <div className="px-5 py-4" style={{ borderTop: '1px solid rgba(255,255,255,0.10)' }}>
-        <div className="text-white/30 text-xs">HUFS ICE Server Ops</div>
+        <div className="text-white/30 text-xs">HUFS ARES-SOC</div>
         <div className="text-white/20 text-xs mt-0.5">© 2024 한국외국어대학교</div>
       </div>
     </aside>
