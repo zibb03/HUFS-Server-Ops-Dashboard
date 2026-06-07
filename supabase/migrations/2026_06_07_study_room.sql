@@ -16,7 +16,8 @@ CREATE TABLE IF NOT EXISTS soc_study_rooms (
   room_type     TEXT NOT NULL DEFAULT 'GROUP',   -- 'GROUP' | 'INDIVIDUAL'
   capacity      INTEGER NOT NULL DEFAULT 4,      -- 최대 인원
   min_participants INTEGER NOT NULL DEFAULT 2,   -- 최소 인원(그룹만)
-  location      TEXT,                            -- "본관 3층"
+  location      TEXT,                            -- "3층"
+  facilities    TEXT,                            -- 쉼표구분 "PC,화이트보드"
   open_time     TEXT NOT NULL DEFAULT '09:00',
   close_time    TEXT NOT NULL DEFAULT '23:00',
   is_active     BOOLEAN NOT NULL DEFAULT TRUE,
@@ -59,11 +60,17 @@ CREATE TABLE IF NOT EXISTS soc_study_penalties (
 );
 CREATE INDEX IF NOT EXISTS idx_soc_sp_user ON soc_study_penalties(user_id);
 
-/* ─────────────── 시드 (방 5개) ─────────────── */
-INSERT INTO soc_study_rooms (room_number, room_type, capacity, min_participants, location, open_time, close_time) VALUES
-  ('305', 'GROUP',      4, 2, '본관 3층', '09:00', '23:00'),
-  ('306', 'GROUP',      6, 2, '본관 3층', '09:00', '23:00'),
-  ('409', 'GROUP',      4, 2, '본관 4층', '09:00', '23:00'),
-  ('410', 'INDIVIDUAL', 1, 1, '본관 4층', '09:00', '23:00'),
-  ('411', 'INDIVIDUAL', 1, 1, '본관 4층', '09:00', '23:00')
-ON CONFLICT (room_number) DO NOTHING;
+-- 이미 테이블을 만든 경우 대비 (facilities 컬럼 보강)
+ALTER TABLE soc_study_rooms ADD COLUMN IF NOT EXISTS facilities TEXT;
+
+/* ─────────────── 시드 (실제 호실 305/409 + 데모 개인실) ─────────────── */
+-- 코드(프론트엔드)에서 확인된 실제 호실은 305(3층)·409(4층) 둘뿐.
+-- 개인실(410/411)은 개인예약 시연용으로 추가.
+-- 재실행 시 시설/위치 갱신되도록 ON CONFLICT DO UPDATE.
+INSERT INTO soc_study_rooms (room_number, room_type, capacity, min_participants, location, facilities, open_time, close_time) VALUES
+  ('305', 'GROUP',      4, 2, '3층', 'PC,화이트보드',              '09:00', '23:00'),
+  ('409', 'GROUP',      4, 2, '4층', '화이트보드,대형 모니터,PC',  '09:00', '23:00'),
+  ('410', 'INDIVIDUAL', 1, 1, '4층', 'PC',                        '09:00', '23:00'),
+  ('411', 'INDIVIDUAL', 1, 1, '4층', 'PC',                        '09:00', '23:00')
+ON CONFLICT (room_number) DO UPDATE
+  SET location = EXCLUDED.location, facilities = EXCLUDED.facilities;

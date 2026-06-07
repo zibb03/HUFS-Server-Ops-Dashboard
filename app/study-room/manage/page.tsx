@@ -15,7 +15,7 @@ export default function StudyRoomManagePage() {
   const [msg, setMsg] = useState('')
   const [form, setForm] = useState({
     room_number: '', room_type: 'GROUP', capacity: '4', min_participants: '2',
-    location: '', open_time: '09:00', close_time: '23:00',
+    location: '', facilities: '', open_time: '09:00', close_time: '23:00',
   })
 
   const loadRooms = () => fetch('/api/study-room/rooms?all=1').then(r => r.json()).then(j => j.success && setRooms(j.data))
@@ -34,7 +34,7 @@ export default function StudyRoomManagePage() {
       body: JSON.stringify({ ...form, capacity: Number(form.capacity), min_participants: Number(form.min_participants) }),
     })).json()
     if (!j.success) { setMsg(j.error); return }
-    setForm({ room_number: '', room_type: 'GROUP', capacity: '4', min_participants: '2', location: '', open_time: '09:00', close_time: '23:00' })
+    setForm({ room_number: '', room_type: 'GROUP', capacity: '4', min_participants: '2', location: '', facilities: '', open_time: '09:00', close_time: '23:00' })
     loadRooms()
   }
   const toggleRoom = async (num: string, active: boolean) => {
@@ -109,18 +109,19 @@ export default function StudyRoomManagePage() {
             <F label="유형"><select value={form.room_type} onChange={set('room_type')} className={INP}><option value="GROUP">그룹</option><option value="INDIVIDUAL">개인</option></select></F>
             <F label="정원"><input type="number" min={1} value={form.capacity} onChange={set('capacity')} className={INP} /></F>
             <F label="최소인원"><input type="number" min={1} value={form.min_participants} onChange={set('min_participants')} className={INP} /></F>
-            <F label="위치"><input value={form.location} onChange={set('location')} className={INP} placeholder="본관 3층" /></F>
+            <F label="위치"><input value={form.location} onChange={set('location')} className={INP} placeholder="3층" /></F>
+            <F label="시설(쉼표)"><input value={form.facilities} onChange={set('facilities')} className={INP} placeholder="PC,화이트보드" /></F>
             <F label="오픈"><input type="time" value={form.open_time} onChange={set('open_time')} className={INP} /></F>
             <F label="마감"><input type="time" value={form.close_time} onChange={set('close_time')} className={INP} /></F>
             <div className="flex items-end"><button type="submit" className="w-full py-2 rounded text-sm font-semibold text-white" style={{ background: 'linear-gradient(135deg, #000d2f, #00205b)' }}>+ 방 추가</button></div>
           </form>
           <Card>
-            <Table head={['방', '유형', '정원', '인원', '위치', '운영', '상태', '']}>
+            <Table head={['방', '유형', '정원', '인원', '위치', '시설', '운영', '상태', '']}>
               {rooms.map((r, i) => (
                 <tr key={r.id} className={i % 2 ? 'bg-surface' : 'bg-surface-lowest'}>
                   <Td>{r.room_number}</Td><Td>{r.room_type === 'GROUP' ? '그룹' : '개인'}</Td>
                   <Td muted>{r.capacity}</Td><Td muted>{r.min_participants}~{r.capacity}</Td>
-                  <Td muted>{r.location}</Td><Td muted>{r.open_time}~{r.close_time}</Td>
+                  <Td muted>{r.location}</Td><Td muted>{r.facilities}</Td><Td muted>{r.open_time}~{r.close_time}</Td>
                   <Td>{r.is_active ? <span className="text-xs text-success">운영중</span> : <span className="text-xs text-secondary">중지</span>}</Td>
                   <Td><button onClick={() => toggleRoom(r.room_number, !r.is_active)} className="px-2 py-1 rounded text-xs font-semibold bg-surface-high text-on-surface hover:bg-surface-low">{r.is_active ? '중지' : '재개'}</button></Td>
                 </tr>

@@ -93,12 +93,22 @@ export default function StudyRoomPage() {
         ))}
       </div>
 
+      {/* 선택한 방 정보 (위치 + 시설) */}
+      {room && (
+        <div className="mb-3 flex flex-wrap items-center gap-2">
+          {room.location && <span className="text-xs font-semibold text-on-surface">{room.location}</span>}
+          {(room.facilities ?? '').split(',').filter(Boolean).map(f => (
+            <span key={f} className="text-xs px-2 py-0.5 rounded-full bg-surface-high text-secondary">{f}</span>
+          ))}
+          <span className="text-xs text-secondary">운영 {room.open_time}~{room.close_time}</span>
+        </div>
+      )}
+
       {/* 날짜 */}
       <div className="mb-4 flex items-center gap-2">
         <label className="text-xs font-semibold text-secondary">날짜</label>
         <input type="date" value={date} min={todayStr()} onChange={e => setDate(e.target.value)}
           className="bg-surface-low rounded px-3 py-1.5 text-sm text-on-surface outline-none" />
-        {room?.location && <span className="text-xs text-secondary">· {room.location} · {room.open_time}~{room.close_time}</span>}
       </div>
 
       {/* 슬롯 그리드 */}

@@ -318,7 +318,8 @@ export async function createRoom(p: StudyRoomPayload): Promise<StudyRoomRow> {
   return sbInsert<StudyRoomRow>(T.studyRooms, {
     room_number: p.room_number, room_type: p.room_type, capacity: p.capacity,
     min_participants: p.min_participants ?? (p.room_type === 'GROUP' ? 2 : 1),
-    location: p.location ?? null, open_time: p.open_time ?? '09:00', close_time: p.close_time ?? '23:00',
+    location: p.location ?? null, facilities: p.facilities ?? null,
+    open_time: p.open_time ?? '09:00', close_time: p.close_time ?? '23:00',
     is_active: true,
   })
 }

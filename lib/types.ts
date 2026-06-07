@@ -220,6 +220,7 @@ export interface StudyRoomRow {
   capacity: number
   min_participants: number
   location: string | null
+  facilities: string | null   // 쉼표구분 "PC,화이트보드"
   open_time: string
   close_time: string
   is_active: boolean
@@ -273,6 +274,7 @@ export interface StudyRoomPayload {
   capacity: number
   min_participants?: number
   location?: string
+  facilities?: string
   open_time?: string
   close_time?: string
 }

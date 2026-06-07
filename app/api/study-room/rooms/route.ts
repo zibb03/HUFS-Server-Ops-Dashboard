@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
     await requireRole(['admin', 'manager'])
     const b = await req.json() as {
       room_number?: string; room_type?: 'GROUP' | 'INDIVIDUAL'; capacity?: number
-      min_participants?: number; location?: string; open_time?: string; close_time?: string
+      min_participants?: number; location?: string; facilities?: string; open_time?: string; close_time?: string
     }
     if (!b.room_number?.trim() || !b.room_type || !b.capacity) {
       return NextResponse.json({ success: false, error: '방 번호/유형/정원을 입력해주세요.' }, { status: 400 })
@@ -33,7 +33,8 @@ export async function POST(req: NextRequest) {
     await createRoom({
       room_number: b.room_number.trim(), room_type: b.room_type, capacity: Number(b.capacity),
       min_participants: b.min_participants ? Number(b.min_participants) : undefined,
-      location: b.location, open_time: b.open_time, close_time: b.close_time,
+      location: b.location, facilities: b.facilities?.trim() || undefined,
+      open_time: b.open_time, close_time: b.close_time,
     })
     return NextResponse.json({ success: true }, { status: 201 })
   } catch (err) {
