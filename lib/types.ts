@@ -149,3 +149,59 @@ export interface MaintenanceRequestPayload {
   issue_detail: string
   urgency: string
 }
+
+/* ─────────────── 코딩존 (AdvICE 이식, 시연용) ─────────────── */
+
+export interface CodingZoneSubject {
+  id: number
+  name: string
+  created_at: string
+}
+
+export interface CodingZoneClassRow {
+  id: number
+  subject_id: number
+  class_name: string
+  assistant_name: string
+  class_date: string        // "YYYY-MM-DD"
+  class_time: string        // "14:00"
+  week_day: string | null
+  maximum_number: number
+  current_number: number
+  created_at: string
+}
+
+export interface CodingZoneClassWithMine extends CodingZoneClassRow {
+  reserved_by_me: boolean
+}
+
+export interface CodingZoneRegisterRow {
+  id: number
+  class_id: number
+  user_id: number | null
+  user_email: string
+  user_name: string
+  user_student_num: string | null
+  attended: boolean
+  created_at: string
+}
+
+export interface CodingZoneMyReservation extends CodingZoneRegisterRow {
+  class_name: string
+  assistant_name: string
+  class_date: string
+  class_time: string
+  subject_id: number
+}
+
+export interface CodingZoneClassPayload {
+  subject_id: number
+  class_name: string
+  assistant_name: string
+  class_date: string
+  class_time: string
+  week_day?: string
+  maximum_number: number
+}
+
+export type CzReserveResult = 'ok' | 'full' | 'duplicate' | 'not_found'

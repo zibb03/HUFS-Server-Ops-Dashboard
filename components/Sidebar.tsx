@@ -20,6 +20,13 @@ const NAV_NORMAL = [
     ],
   },
   {
+    group: '코딩존',
+    items: [
+      { href: '/coding-zone',            label: '예약',    icon: <CodeIcon /> },
+      { href: '/coding-zone/attendance', label: '내 출석', icon: <CheckIcon /> },
+    ],
+  },
+  {
     group: '관리',
     items: [
       { href: '/notices', label: '공지사항', icon: <BellIcon /> },
@@ -42,6 +49,14 @@ const NAV_ADMIN = [
       { href: '/requests/equipment',   label: '장비 대여',    icon: <MonitorIcon /> },
       { href: '/requests/printer',     label: '프린터 요청',  icon: <PrinterIcon /> },
       { href: '/requests/maintenance', label: '유지보수 신청', icon: <WrenchIcon /> },
+    ],
+  },
+  {
+    group: '코딩존',
+    items: [
+      { href: '/coding-zone',            label: '예약',        icon: <CodeIcon /> },
+      { href: '/coding-zone/attendance', label: '내 출석',     icon: <CheckIcon /> },
+      { href: '/coding-zone/manage',     label: '코딩존 관리', icon: <CalendarIcon /> },
     ],
   },
   {
@@ -155,3 +170,6 @@ function WrenchIcon()   { return <svg className="w-4 h-4" fill="none" viewBox="0
 function BellIcon()     { return <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg> }
 function FileTextIcon() { return <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> }
 function BoxIcon()      { return <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg> }
+function CodeIcon()     { return <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg> }
+function CheckIcon()    { return <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg> }
+function CalendarIcon() { return <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> }
