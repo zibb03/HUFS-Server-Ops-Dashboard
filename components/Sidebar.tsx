@@ -78,6 +78,13 @@ export default function Sidebar({ onClose, isAdmin = false }: Props) {
   const pathname = usePathname()
   const NAV = isAdmin ? NAV_ADMIN : NAV_NORMAL
 
+  // 현재 경로와 매칭되는 메뉴 중 "가장 긴 href" 하나만 active.
+  // (예: /coding-zone/manage 에서 /coding-zone 와 /coding-zone/manage 둘 다 매칭되지만
+  //  더 긴 /coding-zone/manage 만 켜짐)
+  const activeHref = NAV.flatMap(g => g.items.map(i => i.href))
+    .filter(href => href === '/' ? pathname === '/' : (pathname === href || pathname.startsWith(href + '/')))
+    .sort((a, b) => b.length - a.length)[0] ?? ''
+
   return (
     <aside
       className="h-full flex flex-col overflow-y-auto scrollbar-thin"
@@ -121,7 +128,7 @@ export default function Sidebar({ onClose, isAdmin = false }: Props) {
             </div>
             <div className="space-y-0.5">
               {items.map(({ href, label, icon }) => {
-                const active = href === '/' ? pathname === '/' : pathname.startsWith(href)
+                const active = href === activeHref
                 return (
                   <Link
                     key={href}
