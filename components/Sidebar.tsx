@@ -27,6 +27,14 @@ const NAV_NORMAL = [
     ],
   },
   {
+    group: '스터디룸',
+    items: [
+      { href: '/study-room',         label: '예약',    icon: <DoorIcon /> },
+      { href: '/study-room/my',      label: '내 예약', icon: <ClockIcon /> },
+      { href: '/study-room/checkin', label: 'QR 입실', icon: <QrIcon /> },
+    ],
+  },
+  {
     group: '관리',
     items: [
       { href: '/notices', label: '공지사항', icon: <BellIcon /> },
@@ -57,6 +65,15 @@ const NAV_ADMIN = [
       { href: '/coding-zone',            label: '예약',        icon: <CodeIcon /> },
       { href: '/coding-zone/attendance', label: '내 출석',     icon: <CheckIcon /> },
       { href: '/coding-zone/manage',     label: '코딩존 관리', icon: <CalendarIcon /> },
+    ],
+  },
+  {
+    group: '스터디룸',
+    items: [
+      { href: '/study-room',         label: '예약',        icon: <DoorIcon /> },
+      { href: '/study-room/my',      label: '내 예약',     icon: <ClockIcon /> },
+      { href: '/study-room/checkin', label: 'QR 입실',     icon: <QrIcon /> },
+      { href: '/study-room/manage',  label: '스터디룸 관리', icon: <CalendarIcon /> },
     ],
   },
   {
@@ -180,3 +197,6 @@ function BoxIcon()      { return <svg className="w-4 h-4" fill="none" viewBox="0
 function CodeIcon()     { return <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg> }
 function CheckIcon()    { return <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg> }
 function CalendarIcon() { return <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> }
+function DoorIcon()     { return <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M3 21h18"/><path d="M6 21V4a1 1 0 011-1h10a1 1 0 011 1v17"/><circle cx="14" cy="12" r="1" fill="currentColor"/></svg> }
+function ClockIcon()    { return <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg> }
+function QrIcon()       { return <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><line x1="14" y1="14" x2="14" y2="21"/><line x1="18" y1="14" x2="18" y2="18"/><line x1="21" y1="14" x2="21" y2="21"/></svg> }

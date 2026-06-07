@@ -205,3 +205,82 @@ export interface CodingZoneClassPayload {
 }
 
 export type CzReserveResult = 'ok' | 'full' | 'duplicate' | 'not_found'
+
+/* ─────────────── 스터디룸 예약 (ICE 스터디룸 이식, 시연용) ─────────────── */
+
+export type StudyRoomType = 'GROUP' | 'INDIVIDUAL'
+export type StudyReservationStatus =
+  | 'RESERVED' | 'ENTRANCE' | 'LATE' | 'NO_SHOW' | 'COMPLETED' | 'CANCELLED'
+export type StudyPenaltyReason = 'CANCEL' | 'LATE' | 'NO_SHOW' | 'ADMIN'
+
+export interface StudyRoomRow {
+  id: number
+  room_number: string
+  room_type: StudyRoomType
+  capacity: number
+  min_participants: number
+  location: string | null
+  open_time: string
+  close_time: string
+  is_active: boolean
+  created_at: string
+}
+
+export interface StudyReservationRow {
+  id: number
+  group_id: string | null
+  room_number: string
+  room_type: StudyRoomType
+  schedule_date: string
+  start_time: string
+  end_time: string
+  user_id: number | null
+  user_email: string
+  user_name: string
+  user_student_num: string | null
+  is_holder: boolean
+  status: StudyReservationStatus
+  enter_time: string | null
+  qr_token: string | null
+  created_at: string
+}
+
+export interface StudyReservationGroup extends StudyReservationRow {
+  participants: { name: string; email: string; status: StudyReservationStatus }[]
+}
+
+export interface StudyPenaltyRow {
+  id: number
+  user_id: number | null
+  reservation_id: number | null
+  reason: StudyPenaltyReason
+  penalty_end: string
+  status: 'VALID' | 'EXPIRED'
+  created_at: string
+}
+
+export interface StudySlot {
+  start_time: string
+  end_time: string
+  current: number
+  capacity: number
+  available: boolean
+}
+
+export interface StudyRoomPayload {
+  room_number: string
+  room_type: StudyRoomType
+  capacity: number
+  min_participants?: number
+  location?: string
+  open_time?: string
+  close_time?: string
+}
+
+export type StudyReserveResult =
+  | 'ok' | 'full' | 'duplicate' | 'not_found' | 'penalty'
+  | 'invalid_participants' | 'past' | 'closed'
+export type StudyCheckInResult =
+  | 'ENTRANCE' | 'LATE' | 'NO_SHOW' | 'too_early' | 'not_found' | 'already'
+export type StudyCancelResult = 'ok' | 'penalty' | 'too_late' | 'not_found' | 'forbidden'
+export type StudyExtendResult = 'ok' | 'no_slot' | 'full' | 'not_entered' | 'not_found'

@@ -18,6 +18,9 @@ export const T = {
   czSubjects:          'soc_coding_zone_subjects',
   czClasses:           'soc_coding_zone_classes',
   czRegisters:         'soc_coding_zone_registers',
+  studyRooms:          'soc_study_rooms',
+  studyReservations:   'soc_study_reservations',
+  studyPenalties:      'soc_study_penalties',
 } as const
 
 export type TableName = (typeof T)[keyof typeof T]
