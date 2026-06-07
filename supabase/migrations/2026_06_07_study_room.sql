@@ -63,14 +63,19 @@ CREATE INDEX IF NOT EXISTS idx_soc_sp_user ON soc_study_penalties(user_id);
 -- 이미 테이블을 만든 경우 대비 (facilities 컬럼 보강)
 ALTER TABLE soc_study_rooms ADD COLUMN IF NOT EXISTS facilities TEXT;
 
-/* ─────────────── 시드 (실제 호실 305/409 + 데모 개인실) ─────────────── */
--- 코드(프론트엔드)에서 확인된 실제 호실은 305(3층)·409(4층) 둘뿐.
--- 개인실(410/411)은 개인예약 시연용으로 추가.
--- 재실행 시 시설/위치 갱신되도록 ON CONFLICT DO UPDATE.
-INSERT INTO soc_study_rooms (room_number, room_type, capacity, min_participants, location, facilities, open_time, close_time) VALUES
-  ('305', 'GROUP',      4, 2, '3층', 'PC,화이트보드',              '09:00', '23:00'),
-  ('409', 'GROUP',      4, 2, '4층', '화이트보드,대형 모니터,PC',  '09:00', '23:00'),
-  ('410', 'INDIVIDUAL', 1, 1, '4층', 'PC',                        '09:00', '23:00'),
-  ('411', 'INDIVIDUAL', 1, 1, '4층', 'PC',                        '09:00', '23:00')
-ON CONFLICT (room_number) DO UPDATE
-  SET location = EXCLUDED.location, facilities = EXCLUDED.facilities;
+/* ─────────────── 시드 (실제 호실 305-1~7, 409-1~2) ─────────────── */
+-- 실제 스터디룸: 3층 305-1~305-7 (305-2는 예약 불가 = is_active false),
+--               4층 409-1~409-2.
+-- 기존 데모 방(305/409/306/410/411 등) 정리 후 재구성.
+DELETE FROM soc_study_rooms;
+
+INSERT INTO soc_study_rooms (room_number, room_type, capacity, min_participants, location, facilities, open_time, close_time, is_active) VALUES
+  ('305-1', 'GROUP', 4, 2, '3층', 'PC,화이트보드',             '09:00', '23:00', TRUE),
+  ('305-2', 'GROUP', 4, 2, '3층', 'PC,화이트보드',             '09:00', '23:00', FALSE),  -- 예약 불가
+  ('305-3', 'GROUP', 4, 2, '3층', 'PC,화이트보드',             '09:00', '23:00', TRUE),
+  ('305-4', 'GROUP', 4, 2, '3층', 'PC,화이트보드',             '09:00', '23:00', TRUE),
+  ('305-5', 'GROUP', 4, 2, '3층', 'PC,화이트보드',             '09:00', '23:00', TRUE),
+  ('305-6', 'GROUP', 4, 2, '3층', 'PC,화이트보드',             '09:00', '23:00', TRUE),
+  ('305-7', 'GROUP', 4, 2, '3층', 'PC,화이트보드',             '09:00', '23:00', TRUE),
+  ('409-1', 'GROUP', 4, 2, '4층', '화이트보드,대형 모니터,PC', '09:00', '23:00', TRUE),
+  ('409-2', 'GROUP', 4, 2, '4층', '화이트보드,대형 모니터,PC', '09:00', '23:00', TRUE);

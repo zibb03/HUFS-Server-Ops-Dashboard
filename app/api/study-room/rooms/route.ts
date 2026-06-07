@@ -4,16 +4,12 @@ import { requireRole } from '@/lib/session'
 
 export const dynamic = 'force-dynamic'
 
-// GET → 방 목록 (?all=1 이면 비활성 포함, 관리자)
-export async function GET(req: NextRequest) {
+// GET → 방 목록 (비활성 방도 포함해서 반환 → 예약 화면에서 "예약 불가"로 표시).
+// 방 목록 자체는 민감 정보가 아니므로 권한 게이트 없음.
+export async function GET(_req: NextRequest) {
   try {
-    const includeInactive = req.nextUrl.searchParams.get('all') === '1'
-    if (includeInactive) await requireRole(['admin', 'manager'])
-    return NextResponse.json({ success: true, data: await getRooms(includeInactive) })
+    return NextResponse.json({ success: true, data: await getRooms(true) })
   } catch (err) {
-    if ((err as { status?: number }).status === 403) {
-      return NextResponse.json({ success: false, error: '권한 없음' }, { status: 403 })
-    }
     console.error('[/api/study-room/rooms] GET error:', err)
     return NextResponse.json({ success: false, error: '조회 실패' }, { status: 500 })
   }

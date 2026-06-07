@@ -24,7 +24,11 @@ export default function StudyRoomPage() {
 
   useEffect(() => {
     fetch('/api/study-room/rooms').then(r => r.json()).then(j => {
-      if (j.success) { setRooms(j.data); if (j.data[0]) setRoomNumber(j.data[0].room_number) }
+      if (j.success) {
+        setRooms(j.data)
+        const firstActive = j.data.find((r: StudyRoomRow) => r.is_active)
+        if (firstActive) setRoomNumber(firstActive.room_number)
+      }
     })
   }, [])
 
@@ -81,16 +85,23 @@ export default function StudyRoomPage() {
 
       {/* 방 선택 */}
       <div className="flex flex-wrap gap-2 mb-4">
-        {rooms.map(r => (
-          <button key={r.id} onClick={() => setRoomNumber(r.room_number)}
-            className={[
-              'px-3 py-2 rounded-lg text-sm font-display font-semibold border transition-all',
-              roomNumber === r.room_number ? 'bg-[#000d2f] text-white border-transparent' : 'bg-surface-lowest text-on-surface border-surface-high hover:bg-surface-low',
-            ].join(' ')}>
-            {r.room_number}
-            <span className="ml-1.5 text-xs opacity-70">{r.room_type === 'GROUP' ? `그룹·${r.min_participants}~${r.capacity}명` : '개인'}</span>
-          </button>
-        ))}
+        {rooms.map(r => {
+          const disabled = !r.is_active
+          return (
+            <button key={r.id} disabled={disabled} onClick={() => setRoomNumber(r.room_number)}
+              className={[
+                'px-3 py-2 rounded-lg text-sm font-display font-semibold border transition-all',
+                disabled ? 'bg-surface-low text-secondary/50 border-transparent cursor-not-allowed'
+                  : roomNumber === r.room_number ? 'bg-[#000d2f] text-white border-transparent'
+                  : 'bg-surface-lowest text-on-surface border-surface-high hover:bg-surface-low',
+              ].join(' ')}>
+              {r.room_number}
+              <span className="ml-1.5 text-xs opacity-70">
+                {disabled ? '예약 불가' : r.room_type === 'GROUP' ? `그룹·${r.min_participants}~${r.capacity}명` : '개인'}
+              </span>
+            </button>
+          )
+        })}
       </div>
 
       {/* 선택한 방 정보 (위치 + 시설) */}

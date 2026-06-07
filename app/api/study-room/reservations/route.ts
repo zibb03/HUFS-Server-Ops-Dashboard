@@ -12,7 +12,7 @@ const RESERVE_ERR: Record<string, string> = {
   penalty: '패널티 기간이라 예약할 수 없습니다.',
   invalid_participants: '예약 시간(1~2시간) 또는 인원이 올바르지 않습니다.',
   past: '이미 지난 시간입니다.',
-  closed: '운영 시간이 아닙니다.',
+  closed: '현재 예약 불가 상태인 방입니다.',
 }
 
 // GET → 내 예약

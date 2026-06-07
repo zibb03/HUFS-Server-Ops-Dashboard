@@ -132,6 +132,7 @@ function validDuration(start: string, end: string): boolean {
 export async function reserveIndividual(b: ReserveBase): Promise<StudyReserveResult> {
   const room = await getRoomByNumber(b.roomNumber)
   if (!room || room.room_type !== 'INDIVIDUAL') return 'not_found'
+  if (!room.is_active) return 'closed'
   if (!validDuration(b.start, b.end)) return 'invalid_participants'
   if (await getActivePenalty(b.user.id)) return 'penalty'
   if (await hasActiveReservation(b.user.id)) return 'duplicate'
@@ -153,6 +154,7 @@ export async function reserveGroup(
 ): Promise<StudyReserveResult> {
   const room = await getRoomByNumber(b.roomNumber)
   if (!room || room.room_type !== 'GROUP') return 'not_found'
+  if (!room.is_active) return 'closed'
   if (!validDuration(b.start, b.end)) return 'invalid_participants'
 
   const total = 1 + participants.length
