@@ -1,3 +1,5 @@
+> 🟢 **시연용 (Demo)** — Vercel 배포본. 데모 세션(쿠키 기반 가짜 사용자)으로 동작하며 실제 인증/k8s 없이 빠르게 보여주기 위한 버전입니다. (k8s 배포용은 `hufs-ice-server-ops-dashboard-supabase` 레포)
+
 # HUFS ARES-SOC Dashboard
 
 한국외국어대학교 AI로봇공학과(ARES-SOC)의 통합 서버 운영 대시보드.
