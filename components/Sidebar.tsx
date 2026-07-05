@@ -35,6 +35,13 @@ const NAV_NORMAL = [
     ],
   },
   {
+    group: '기자재',
+    items: [
+      { href: '/equipment-rental',    label: '대여',    icon: <BoxIcon /> },
+      { href: '/equipment-rental/my', label: '내 대여', icon: <ClockIcon /> },
+    ],
+  },
+  {
     group: '관리',
     items: [
       { href: '/notices', label: '공지사항', icon: <BellIcon /> },
@@ -74,6 +81,14 @@ const NAV_ADMIN = [
       { href: '/study-room/my',      label: '내 예약',     icon: <ClockIcon /> },
       { href: '/study-room/checkin', label: 'QR 입실',     icon: <QrIcon /> },
       { href: '/study-room/manage',  label: '스터디룸 관리', icon: <CalendarIcon /> },
+    ],
+  },
+  {
+    group: '기자재',
+    items: [
+      { href: '/equipment-rental',        label: '대여',        icon: <BoxIcon /> },
+      { href: '/equipment-rental/my',     label: '내 대여',     icon: <ClockIcon /> },
+      { href: '/equipment-rental/manage', label: '대여 관리',   icon: <CalendarIcon /> },
     ],
   },
   {
