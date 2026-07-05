@@ -286,37 +286,3 @@ export type StudyCheckInResult =
   | 'ENTRANCE' | 'LATE' | 'NO_SHOW' | 'too_early' | 'not_found' | 'already'
 export type StudyCancelResult = 'ok' | 'penalty' | 'too_late' | 'not_found' | 'forbidden'
 export type StudyExtendResult = 'ok' | 'no_slot' | 'full' | 'not_entered' | 'not_found'
-
-/* ─────────────── 기자재(장비) 대여 예약 (스터디룸 방식, 시연용) ─────────────── */
-
-export type EquipmentRentalStatus =
-  | 'RESERVED' | 'RENTED' | 'RETURNED' | 'OVERDUE' | 'CANCELLED'
-
-export interface EquipmentRentalRow {
-  id: number
-  item_id: number
-  item_name: string
-  qty: number
-  start_date: string        // "YYYY-MM-DD"
-  end_date: string          // "YYYY-MM-DD"
-  user_id: number | null
-  user_email: string
-  user_name: string
-  user_student_num: string | null
-  status: EquipmentRentalStatus
-  picked_at: string | null
-  returned_at: string | null
-  created_at: string
-}
-
-// 카탈로그 + 특정 기간 가용 수량
-export interface EquipmentItemAvail {
-  id: number
-  name: string
-  total_qty: number
-  available: number         // 해당 기간 예약 가능 수량
-}
-
-export type EquipmentReserveResult =
-  | 'ok' | 'not_found' | 'invalid_date' | 'no_stock' | 'overdue_block' | 'invalid_qty'
-export type EquipmentRentalAction = 'pickup' | 'return'

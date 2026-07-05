@@ -21,7 +21,6 @@ export const T = {
   studyRooms:          'soc_study_rooms',
   studyReservations:   'soc_study_reservations',
   studyPenalties:      'soc_study_penalties',
-  equipmentRentals:    'soc_equipment_rentals',
 } as const
 
 export type TableName = (typeof T)[keyof typeof T]
